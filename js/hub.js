@@ -28,6 +28,7 @@ const WELLS = [
   },
   {
     name: "Dots & Lines",
+    nameEs: "Puntos y Rayas",
     line: {
       es: "Nuestro juego de cartas familiar. Fácil de aprender.",
       en: "Our family card game. Easy to learn."
@@ -83,7 +84,18 @@ WELLS.forEach((well) => {
 
   const name = document.createElement("span");
   name.className = "hx-name";
-  name.textContent = well.name;
+  if (well.nameEs) {
+    // A name that differs by language: only the current language's span shows (hub.css hides the other).
+    const nameEs = document.createElement("span");
+    nameEs.lang = "es";
+    nameEs.textContent = well.nameEs;
+    const nameEn = document.createElement("span");
+    nameEn.lang = "en";
+    nameEn.textContent = well.name;
+    name.append(nameEs, nameEn);
+  } else {
+    name.textContent = well.name;
+  }
   text.append(name);
 
   const spanishLine = document.createElement("span");
@@ -102,7 +114,7 @@ WELLS.forEach((well) => {
   anchor.append(phase);
   anchor.addEventListener("click", (event) => {
     if (!well.url || !external) event.preventDefault();
-    byId("overlayTextEs").textContent = `Cayendo en ${well.name}…`;
+    byId("overlayTextEs").textContent = `Cayendo en ${well.nameEs || well.name}…`;
     byId("overlayTextEn").textContent = `Falling into ${well.name}…`;
     overlay.hidden = false;
     // Our own pages open in this tab, after a moment of falling.
