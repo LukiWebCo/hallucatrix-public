@@ -127,6 +127,17 @@ h1 {
   color: var(--ink);
 }
 .g-action p { margin: 0; color: var(--soft); font-size: 0.95rem; }
+.g-action-link { display: block; text-decoration: none; color: inherit; border-color: var(--teal); }
+.g-action-link:hover { background: #10302a; }
+.g-go {
+  display: inline-block;
+  margin-top: 8px;
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-weight: 700;
+  color: var(--bg);
+  background: var(--mint);
+}
 .g-soon {
   display: inline-block;
   margin-top: 8px;
