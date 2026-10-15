@@ -530,7 +530,9 @@ html[lang="en"] body [lang="es"] {
   animation: none;
 }
 
+/* Flip around the middle (not the feet); after the turn, -14px moves it down to rest on its back on the line. */
 .hx-rooster.hx-dead svg {
+  transform-origin: 50% 50%;
   transform: rotate(180deg) translateY(-14px);
   animation: none;
 }

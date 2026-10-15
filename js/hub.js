@@ -150,15 +150,6 @@ function setRoosterState(chasing, still, dead) {
   rooster.classList.toggle("hx-dead", dead);
 }
 
-function animateLeft(element, previousAnimation, target) {
-  const from = getComputedStyle(element).left;
-  if (previousAnimation) previousAnimation.cancel();
-  return element.animate(
-    [{ left: from }, { left: target }],
-    { duration: reduceMotion ? 0 : 900, easing: "linear", fill: "forwards" }
-  );
-}
-
 yard.addEventListener("pointermove", (event) => {
   if (mx !== null && Math.abs(event.clientX - mx) < 6 && Math.abs(event.clientY - my) < 6) return;
   mx = event.clientX;
@@ -166,12 +157,21 @@ yard.addEventListener("pointermove", (event) => {
 
   const bounds = yard.getBoundingClientRect();
   const x = Math.max(3, Math.min(97, ((event.clientX - bounds.left) / bounds.width) * 100));
-  if (Math.abs(x - rx) >= 0.5) dir = x > rx ? 1 : -1;
+  // Where the rooster really is now (mid-roam or mid-chase), read before the roam animation is switched off,
+  // so it starts from there and faces the way it actually walks.
+  const roosterBox = rooster.getBoundingClientRect();
+  const fromPx = roosterBox.left + roosterBox.width / 2 - bounds.left;
+  const toPx = (x / 100) * bounds.width;
+  if (Math.abs(toPx - fromPx) >= 2) dir = toPx > fromPx ? 1 : -1;
   rx = x;
   clearRoosterTimers();
   poop.classList.remove("hx-visible");
+  if (roosterMotion) roosterMotion.cancel();
   setRoosterState(true, false, false);
-  roosterMotion = animateLeft(rooster, roosterMotion, `${rx}%`);
+  roosterMotion = rooster.animate(
+    [{ left: `${Math.round(fromPx)}px` }, { left: `${rx}%` }],
+    { duration: reduceMotion ? 0 : 900, easing: "linear", fill: "forwards" }
+  );
   face.classList.toggle("hx-facing-left", dir < 0);
 
   t0 = setTimeout(() => setRoosterState(true, true, false), 900);
