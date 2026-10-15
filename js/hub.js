@@ -85,6 +85,7 @@ WELLS.forEach((well) => {
 
   const spanishLine = document.createElement("span");
   spanishLine.className = "hx-line-es";
+  spanishLine.lang = "es";
   spanishLine.textContent = well.line.es;
   text.append(spanishLine);
 
@@ -110,6 +111,20 @@ byId("climbOut").addEventListener("click", () => {
   overlay.hidden = true;
 });
 
+// Language toggle: js/lang.js already set <html lang> before paint; CSS hides the other language.
+const langToggle = byId("langToggle");
+function showLang(lang) {
+  document.documentElement.lang = lang;
+  langToggle.textContent = lang === "es" ? "EN" : "ES";
+  langToggle.setAttribute("aria-label", lang === "es" ? "Switch to English" : "Cambiar a español");
+}
+showLang(document.documentElement.lang === "en" ? "en" : "es");
+langToggle.addEventListener("click", () => {
+  const next = document.documentElement.lang === "es" ? "en" : "es";
+  try { localStorage.setItem("hx-lang", next); } catch (error) { /* private mode: choice lasts this visit */ }
+  showLang(next);
+});
+
 const yard = byId("yard");
 const rooster = byId("rooster");
 const face = byId("roosterFace");
@@ -122,7 +137,6 @@ let t0;
 let t1;
 let t2;
 let roosterMotion = null;
-let poopMotion = null;
 
 function clearRoosterTimers() {
   clearTimeout(t0);
@@ -156,18 +170,18 @@ yard.addEventListener("pointermove", (event) => {
   rx = x;
   clearRoosterTimers();
   poop.classList.remove("hx-visible");
-  if (poopMotion) {
-    poopMotion.cancel();
-    poopMotion = null;
-  }
   setRoosterState(true, false, false);
   roosterMotion = animateLeft(rooster, roosterMotion, `${rx}%`);
   face.classList.toggle("hx-facing-left", dir < 0);
 
   t0 = setTimeout(() => setRoosterState(true, true, false), 900);
   t1 = setTimeout(() => {
+    // Drop it right under the rooster's tail, where the rooster is now (no slide in from elsewhere).
+    const yardBox = yard.getBoundingClientRect();
+    const roosterBox = rooster.getBoundingClientRect();
+    const under = roosterBox.left + roosterBox.width / 2 - yardBox.left - dir * 14;
+    poop.style.left = `${Math.round(under)}px`;
     poop.classList.add("hx-visible");
-    poopMotion = animateLeft(poop, poopMotion, `calc(${rx}% - ${dir * 38}px)`);
   }, 3900);
   t2 = setTimeout(() => setRoosterState(true, true, true), 6900);
 });
@@ -176,10 +190,6 @@ yard.addEventListener("pointerleave", () => {
   clearRoosterTimers();
   mx = my = null;
   poop.classList.remove("hx-visible");
-  if (poopMotion) {
-    poopMotion.cancel();
-    poopMotion = null;
-  }
   if (roosterMotion) {
     roosterMotion.cancel();
     roosterMotion = null;

@@ -90,7 +90,7 @@ a:hover {
   position: relative;
   z-index: 6;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
@@ -99,6 +99,7 @@ a:hover {
 
 .hx-brand {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: 4px;
 }
@@ -154,9 +155,33 @@ a:hover {
   opacity: 0;
 }
 
-.hx-tagline [lang="en"]::before,
-.hx-footer [lang="en"]::before {
-  content: "· ";
+/* One language at a time: <html lang> (set by js/lang.js, switched by the toggle) hides the other one. */
+html[lang="es"] body [lang="en"],
+html[lang="en"] body [lang="es"] {
+  display: none !important;
+}
+
+.hx-lang {
+  min-width: 48px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #2bb39a;
+  border-radius: 999px;
+  background: transparent;
+  color: #e6fff7;
+  cursor: pointer;
+  font: 700 15px "Nunito Sans", system-ui, sans-serif;
+  letter-spacing: 0.5px;
+  align-self: flex-start;
+}
+
+.hx-lang:hover {
+  background: rgb(43 179 154 / 18%);
+}
+
+.hx-lang:focus-visible {
+  outline: 2px solid #e6fff7;
+  outline-offset: 3px;
 }
 
 .hx-main {

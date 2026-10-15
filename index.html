@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" translate="no">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,6 +9,7 @@
   <meta name="description" lang="en" content="Hallucatrix: fun projects by Luki Web Co. Everything here is real. Probably.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/hub.css">
+  <script src="js/lang.js"></script>
   <script defer src="js/hub.js"></script>
 </head>
 <body>
@@ -19,10 +20,11 @@
           <h1><button type="button" id="title" class="hx-title">Hallucatrix</button></h1>
         </div>
         <p id="tagline" class="hx-tagline">
-          <span>Todo aquí es real. Probablemente.</span>
+          <span lang="es">Todo aquí es real. Probablemente.</span>
           <span lang="en">Everything here is real. Probably.</span>
         </p>
       </div>
+      <button type="button" id="langToggle" class="hx-lang" aria-label="Switch to English">EN</button>
     </header>
 
     <main class="hx-main">
@@ -32,7 +34,7 @@
           <div class="hx-hole"></div>
           <div class="hx-shine"></div>
         </div>
-        <div id="wells" class="hx-wells" aria-label="Proyectos / Projects"></div>
+        <div id="wells" class="hx-wells" aria-label="Proyectos"></div>
       </div>
     </main>
 
@@ -65,21 +67,21 @@
     </div>
 
     <footer class="hx-footer">
-      <span>Hecho por Luki Web Co. Parte, a propósito.</span>
+      <span lang="es">Hecho por Luki Web Co. Parte de esto, a propósito.</span>
       <span lang="en">Built by Luki Web Co. Some of it on purpose.</span>
     </footer>
 
     <div id="overlay" class="hx-overlay" hidden>
       <p class="hx-overlay-title">
-        <span id="overlayTextEs"></span>
+        <span lang="es" id="overlayTextEs"></span>
         <span lang="en" id="overlayTextEn"></span>
       </p>
       <p class="hx-overlay-subtitle">
-        <span>Alivio. Luego, misterio.</span>
+        <span lang="es">Alivio. Luego, misterio.</span>
         <span lang="en">Relief. Then mystery.</span>
       </p>
       <button type="button" id="climbOut" class="hx-climb-out">
-        <span>Volver a salir</span>
+        <span lang="es">Volver a salir</span>
         <span lang="en">Climb back out</span>
       </button>
     </div>
