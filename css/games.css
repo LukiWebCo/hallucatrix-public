@@ -1,0 +1,191 @@
+/* Game pages (/puntos/, /conquian/): rules, how-to and play. Same palette and fonts as the hub. */
+@font-face { font-family: Fredoka; font-weight: 600; font-display: swap; src: url("../fonts/fredoka-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: Fredoka; font-weight: 700; font-display: swap; src: url("../fonts/fredoka-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Nunito Sans"; font-weight: 400; font-display: swap; src: url("../fonts/nunito-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Nunito Sans"; font-weight: 700; font-display: swap; src: url("../fonts/nunito-sans-latin-700-normal.woff2") format("woff2"); }
+
+:root {
+  color-scheme: dark;
+  --bg: #06100e;
+  --panel: #0c221d;
+  --line: #1d4a40;
+  --ink: #e6fff7;
+  --soft: #a9cfc4;
+  --mint: #7ee8c9;
+  --teal: #2bb39a;
+  --accent: #ff8a5b;
+  font-family: "Nunito Sans", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.g-conquian { --accent: #e2b544; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 50% 0%, #0c221d 0%, var(--bg) 55%);
+  line-height: 1.55;
+  font-size: 1.0625rem;
+}
+
+html[lang="es"] body [lang="en"],
+html[lang="en"] body [lang="es"] { display: none; }
+
+a { color: var(--mint); }
+a:hover { color: #b8f5e2; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.g-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 14px 16px;
+}
+
+.g-home {
+  font-family: Fredoka, system-ui, sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.g-lang {
+  border: 1px solid var(--teal);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: 600 0.9rem Fredoka, system-ui, sans-serif;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+.g-lang:hover { background: rgb(43 179 154 / 18%); }
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.g-hero {
+  text-align: center;
+  padding: 18px 0 8px;
+}
+
+.g-art {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.g-art img { width: 52px; height: 52px; }
+.g-conquian .g-art { gap: 0; }
+.g-conquian .g-art img { width: 64px; height: auto; border-radius: 6px; margin: 0 -6px; box-shadow: 0 4px 14px rgb(0 0 0 / 45%); }
+.g-conquian .g-art img:nth-child(1) { transform: rotate(-12deg) translateY(6px); }
+.g-conquian .g-art img:nth-child(2) { transform: rotate(-4deg); }
+.g-conquian .g-art img:nth-child(3) { transform: rotate(4deg); }
+.g-conquian .g-art img:nth-child(4) { transform: rotate(12deg) translateY(6px); }
+
+h1 {
+  font-family: Fredoka, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 8vw, 3rem);
+  line-height: 1.1;
+  margin: 0 0 6px;
+  color: var(--mint);
+}
+
+.g-tagline {
+  margin: 0;
+  color: var(--soft);
+  font-style: italic;
+}
+
+.g-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 26px 0 8px;
+}
+
+.g-action {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  padding: 14px 16px;
+}
+.g-action h2 {
+  font-family: Fredoka, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+  color: var(--ink);
+}
+.g-action p { margin: 0; color: var(--soft); font-size: 0.95rem; }
+.g-soon {
+  display: inline-block;
+  margin-top: 8px;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--bg);
+  background: var(--accent);
+}
+
+.g-rules h2, .g-rules h3 {
+  font-family: Fredoka, system-ui, sans-serif;
+  font-weight: 600;
+  color: var(--mint);
+  line-height: 1.2;
+}
+.g-rules h2 { font-size: 1.6rem; margin: 36px 0 8px; }
+.g-rules h3 { font-size: 1.3rem; margin: 30px 0 8px; padding-top: 18px; border-top: 1px solid var(--line); }
+.g-rules h4 { font-size: 1.05rem; margin: 18px 0 6px; color: var(--ink); }
+.g-rules strong { color: #fff; }
+.g-rules ul, .g-rules ol { padding-left: 1.4em; }
+.g-rules li { margin: 4px 0; }
+.g-rules li > p { margin: 8px 0; }
+
+.g-rules blockquote {
+  margin: 10px 0 14px;
+  padding: 10px 14px;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 12px 12px 0;
+  background: var(--panel);
+}
+
+.g-table { overflow-x: auto; margin: 12px 0; }
+.g-table table { border-collapse: collapse; width: 100%; min-width: 300px; font-size: 0.95rem; }
+.g-table th, .g-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: center; }
+.g-table th { background: var(--panel); font-weight: 700; }
+
+.g-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+.g-cards img { width: 58px; height: auto; border-radius: 5px; }
+.g-example { margin: 14px 0; }
+.g-example figcaption { color: var(--soft); font-size: 0.95rem; }
+
+.g-credits {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--soft);
+  font-size: 0.9rem;
+}
+.g-credits p { margin: 6px 0; }
+
+@media (max-width: 420px) {
+  body { font-size: 1rem; }
+  .g-art img { width: 44px; height: 44px; }
+  .g-conquian .g-art img { width: 52px; }
+}

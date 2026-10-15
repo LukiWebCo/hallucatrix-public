@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es" translate="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06100E">
+  <title>Puntos y Rayas · Hallucatrix</title>
+  <meta name="description" lang="es" content="Puntos y Rayas: reglas, video y juego en línea. Lo que importa son las rayas entre los puntos.">
+  <meta name="description" lang="en" content="Dots &amp; Lines: rules, video and online play. The point is the lines between points.">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/games.css">
+  <script src="../js/lang.js"></script>
+  <script defer src="../js/page.js"></script>
+</head>
+<body class="g-puntos">
+  <header class="g-top">
+    <a class="g-home" href="../">← Hallucatrix</a>
+    <button type="button" id="langToggle" class="g-lang" aria-label="Switch to English">EN</button>
+  </header>
+
+  <main>
+    <section class="g-hero">
+      <div class="g-art" aria-hidden="true">
+        <img src="img/dot-r.svg" alt="" width="52" height="52">
+        <img src="img/dot-b.svg" alt="" width="52" height="52">
+        <img src="img/dot-s.svg" alt="" width="52" height="52">
+        <img src="img/dot-g.svg" alt="" width="52" height="52">
+        <img src="img/dot-p.svg" alt="" width="52" height="52">
+      </div>
+      <h1><span lang="es">Puntos y Rayas</span><span lang="en">Dots &amp; Lines</span></h1>
+      <p class="g-tagline">
+        <span lang="es">Lo que importa son las rayas entre los puntos.</span>
+        <span lang="en">The point is the lines between points.</span>
+      </p>
+    </section>
+
+    <section class="g-actions">
+      <div class="g-action">
+        <h2><span lang="es">Video</span><span lang="en">Video</span></h2>
+        <p><span lang="es">Cómo se juega, en un par de minutos.</span><span lang="en">How to play, in a couple of minutes.</span></p>
+        <span class="g-soon"><span lang="es">Muy pronto</span><span lang="en">Coming soon</span></span>
+      </div>
+      <div class="g-action">
+        <h2><span lang="es">Jugar en línea</span><span lang="en">Play online</span></h2>
+        <p><span lang="es">Practica contra la computadora o abre una mesa con tu gente.</span><span lang="en">Practise against the computer or open a table with your people.</span></p>
+        <span class="g-soon"><span lang="es">Muy pronto</span><span lang="en">Coming soon</span></span>
+      </div>
+    </section>
+
+    <article class="g-rules">
+      <div lang="es">
+      <h2>Reglamento</h2>
+      <p><strong>La meta:</strong> sé la primera persona en jugar la última carta de tu <strong>Pila</strong>.</p>
+      <h3>Qué trae la caja</h3>
+      <ul><li><strong>100 cartas por juego:</strong> <ul><li>4 colores, cada uno con su forma: <strong>Coral ●</strong>, <strong>Cielo ■</strong>, <strong>Hoja ▲</strong> y <strong>Ciruela ◆</strong>.</li><li>Del 1 al 12 en cada color, dos de cada una.</li><li>4 <strong>Chispas ✦</strong>.</li></ul></li><li>La carta del <strong>Mercado</strong>.</li><li>Tarjetas de turno.</li><li>Hoja de puntos.</li><li>Tarjeta QR.</li></ul>
+      <p><strong>De 2 a 4 personas usan un juego. De 5 a 8 personas usan dos juegos revueltos.</strong></p>
+      <h3>Preparación</h3>
+      <ol><li>Revuelve bien las cartas.</li><li>Reparte a cada quien su <strong>Pila</strong>: un montón de cartas boca abajo. Cuántas van en cada Pila depende de cuántos juegan (mira la tabla). Voltea boca arriba la carta de arriba de cada Pila.</li><li>Reparte a cada quien <strong>7 cartas</strong> para su <strong>Mano</strong>.</li><li>Las cartas que sobran forman la <strong>Bolsa</strong>. De ahí se toman cartas.</li><li><strong>Las primeras Rayas:</strong> voltea cartas de la Bolsa una por una y ponlas en fila, boca arriba. Cuando tres de ellas formen una <strong>Raya</strong> sin Chispas, pásalas a la <strong>Mesa</strong>. Deja de voltear cuando la Mesa tenga las Rayas que marca la tabla. Las cartas que quedaron sueltas, incluso las Chispas, se revuelven de nuevo en la Bolsa.</li><li>Escojan al azar quién empieza. El juego sigue hacia la izquierda.</li></ol>
+      <div class="g-table"><table>
+      <thead><tr><th>Personas</th><th>Juegos de cartas</th><th>Cartas en cada Pila</th><th>Rayas para empezar</th></tr></thead>
+      <tbody>
+      <tr><td>2</td><td>1</td><td>12</td><td>5</td></tr>
+      <tr><td>3</td><td>1</td><td>11</td><td>4</td></tr>
+      <tr><td>4</td><td>1</td><td>10</td><td>4</td></tr>
+      <tr><td>5</td><td>2</td><td>10</td><td>4</td></tr>
+      <tr><td>6</td><td>2</td><td>10</td><td>5</td></tr>
+      <tr><td>7 u 8</td><td>2</td><td>9</td><td>5</td></tr>
+      </tbody></table></div>
+      <h3>Las Rayas</h3>
+      <p>Una <strong>Raya</strong> es un grupo de cartas que van juntas sobre la Mesa. Hay dos tipos:</p>
+      <p><strong>Escalera:</strong> un solo color, con los números seguidos. Lleva de 3 a 6 cartas.</p>
+      <blockquote>Ejemplo: <strong>4 5 6 de Cielo</strong></blockquote>
+      <ul><li>Los números van del 1 al 12. El 12 no se junta con el 1.</li></ul>
+      <p><strong>Grupo:</strong> un solo número, con 3 o 4 colores <em>distintos</em>.</p>
+      <blockquote>Ejemplo: <strong>8 de Coral, Hoja y Ciruela</strong></blockquote>
+      <ul><li>Nunca se repite un color, aunque jueguen con dos juegos de cartas.</li></ul>
+      <p><strong>Raya completa:</strong> una escalera de 6 cartas o un grupo con los 4 colores. Se quita de la Mesa enseguida y se revuelve en la Bolsa.</p>
+      <h3>Tu turno</h3>
+      <ol><li><strong>Llena tu Mano.</strong> Toma cartas de la Bolsa hasta tener 7.</li><li><strong>Juega todo lo que quieras:</strong> <ul><li>Arma Rayas nuevas con cartas de tu Mano.</li><li>Agrega cartas a las Rayas que ya están en la Mesa.</li><li>Mueve cartas que ya están en la Mesa de una Raya a otra.</li></ul> <p>Todas las cartas deben quedarse en la Mesa, y todas las Rayas deben estar bien armadas cuando termines.</p> <p>En cada jugada puedes usar <strong>la carta de arriba de tu Pila</strong>, de una en una. Cuando la juegues, voltea la siguiente y sigue jugando.</p></li><li><strong>Termina tu turno</strong> de una de estas dos maneras: <ul><li>Di <strong>¡Listo!</strong></li><li>O di <strong>Cambio y paso:</strong> cambia la carta de arriba de tu Pila por una carta de tu Mano. La de tu Mano queda boca arriba sobre tu Pila. Luego puedes hacer una jugada más, y se acaba tu turno.</li></ul> <p>Sea como sea: <strong>si no jugaste ninguna carta en este turno, toma 2 cartas de la Bolsa.</strong> Nunca puedes tener más de 12 cartas en la Mano.</p></li></ol>
+      <h3>Las Chispas ✦</h3>
+      <ul><li>Una <strong>Chispa</strong> vale por una carta. El lugar donde la pones dice cuál es: <ul><li>En una escalera, ocupa el lugar del número que le falta.</li><li>En un grupo, vale por un color que falta.</li></ul></li><li>Toda Raya necesita al menos una carta de verdad.</li></ul>
+      <p><strong>Para recuperar una Chispa:</strong> cámbiala por la carta exacta que está supliendo. En un grupo, sirve cualquier color que falte. La Chispa que recuperas la tienes que volver a jugar en ese mismo turno.</p>
+      <h3>Mesa mal armada</h3>
+      <p>Si al terminar tu turno alguna Raya de la Mesa no está bien armada:</p>
+      <ol><li>Deja la Mesa como estaba al empezar tu turno.</li><li>Regresa a tu Mano las cartas que jugaste.</li><li>Toma 2 cartas de la Bolsa.</li></ol>
+      <p><em>(En el juego en línea esto nunca pasa: la app no te deja terminar con la Mesa mal armada.)</em></p>
+      <h3>El Mercado</h3>
+      <p><strong>Cuándo se abre:</strong> al final de un turno en el que salió una Raya completa de la Mesa. La persona que jugó ese turno toma la carta del <strong>Mercado</strong>. Solo hay un Mercado por vuelta: no se puede abrir otro hasta que esa persona haya jugado otro turno.</p>
+      <p><strong>Cómo se cambia:</strong></p>
+      <ul><li>Cada quien puede ofrecer 1, 2 o 3 cartas de su Mano, boca abajo, y dice en voz alta cuántas son: <em>"¡Dos!"</em></li><li>Si dos personas dicen el mismo número, se cambian esas cartas sin verlas.</li><li>Puedes cambiar más de una vez.</li><li>¿Nadie dijo tu número? Cambia tus cartas por las de arriba de la Bolsa.</li></ul>
+      <p><strong>Cuándo se cierra:</strong> cuando todos dicen <strong>¡Listo!</strong></p>
+      <h3>Fin de la ronda y puntos</h3>
+      <p><strong>Gana</strong> quien juegue la última carta de su Pila. En ese momento se acaba la ronda.</p>
+      <p><strong>Puntos:</strong> todos cuentan las cartas que les quedan en la Pila. La persona que ganó se lleva <strong>5 puntos por cada carta</strong> que quedó en las Pilas de los demás. Como mínimo se lleva 10 puntos.</p>
+      <p><strong>La partida</strong> se juega a 100 puntos.</p>
+      <p><strong>Si nadie juega:</strong> si pasa una vuelta completa sin que nadie juegue una carta, volteen cartas de la Bolsa como al empezar, hasta que tres formen una Raya. Pongan esa Raya nueva en la Mesa y sigan.</p>
+      <p><strong>Si se atoran:</strong> si la Bolsa ya no tiene cartas y pasa una vuelta completa sin que nadie juegue una carta, gana quien tenga la Pila más chica. Si hay empate, comparten el triunfo.</p>
+      <h3>Primera partida: Mesa sencilla</h3>
+      <p>Para su primera vez, jueguen con la <strong>Mesa sencilla</strong>: solo puedes armar Rayas nuevas o agregar cartas a las que ya están. No se vale mover cartas ni partir Rayas.</p>
+      <h3>Dudas comunes</h3>
+      <p><strong>¿Puedo jugar la carta de arriba de mi Pila?</strong><br>Sí, de una en una. Cuando la juegues, voltea la siguiente y sigue jugando.</p>
+      <p><strong>¿Puedo poner dos 8 de Coral en el mismo grupo?</strong><br>No. En un grupo nunca se repite un color, ni con dos juegos de cartas.</p>
+      <p><strong>¿Después del 12 sigue el 1?</strong><br>No. Las escaleras van del 1 al 12 y ahí se acaban.</p>
+      <p><strong>¿Qué pasa si en mi turno no juego nada?</strong><br>Tomas 2 cartas de la Bolsa, sin pasar de 12 en tu Mano.</p>
+      <p><strong>¿Puedo armar una Raya solo con Chispas?</strong><br>No. Toda Raya necesita al menos una carta de verdad.</p>
+      <p><strong>En el Mercado nadie dijo mi número. ¿Pierdo mi oportunidad?</strong><br>No. Cambia tus cartas por las de arriba de la Bolsa.</p>
+      <h3>Tarjeta de turno</h3>
+      <blockquote><strong>TU TURNO</strong><br>1. Llena tu Mano hasta 7.<br>2. Arma, agrega o mueve Rayas.<br>3. Usa la carta de arriba de tu Pila.<br>4. Di ¡Listo! o Cambio y paso.<br>¿No jugaste ninguna carta? Toma 2.<br>¿Salió una Raya completa? Hay Mercado.<br>Gana quien vacía su Pila.</blockquote>
+      </div>
+      <div lang="en">
+      <h2>Rulebook</h2>
+      <p><strong>The goal:</strong> be the first player to play the last card from your <strong>Stack</strong>.</p>
+      <h3>What's in the box</h3>
+      <ul><li><strong>100 cards per deck:</strong> <ul><li>4 colours, each with its own shape: <strong>Coral ●</strong>, <strong>Sky ■</strong>, <strong>Leaf ▲</strong> and <strong>Plum ◆</strong>.</li><li>Cards 1 to 12 in each colour, two of each.</li><li>4 <strong>Sparks ✦</strong>.</li></ul></li><li>The <strong>Market</strong> card.</li><li>Turn cards.</li><li>Score sheet.</li><li>QR card.</li></ul>
+      <p><strong>For 2 to 4 players, use one deck. For 5 to 8 players, shuffle two decks together.</strong></p>
+      <h3>Setup</h3>
+      <ol><li>Shuffle the cards well.</li><li>Deal each player a <strong>Stack</strong>. A Stack is a pile of face-down cards. The number of cards in each Stack depends on how many people are playing (see the table). Turn the top card of each Stack face up.</li><li>Deal each player <strong>7 cards</strong> for their <strong>Hand</strong>.</li><li>The leftover cards make the <strong>Bag</strong>. You draw cards from the Bag.</li><li><strong>The first Lines:</strong> turn over cards from the Bag one at a time. Lay them in a row, face up. When three of them make a <strong>Line</strong> with no Sparks, move those three to the <strong>Table</strong>. Stop when the Table has the number of Lines shown in the table below. Shuffle all the leftover cards back into the Bag, Sparks included.</li><li>Choose a first player at random. Play passes to the left.</li></ol>
+      <div class="g-table"><table>
+      <thead><tr><th>Players</th><th>Decks</th><th>Cards in each Stack</th><th>Lines to start</th></tr></thead>
+      <tbody>
+      <tr><td>2</td><td>1</td><td>12</td><td>5</td></tr>
+      <tr><td>3</td><td>1</td><td>11</td><td>4</td></tr>
+      <tr><td>4</td><td>1</td><td>10</td><td>4</td></tr>
+      <tr><td>5</td><td>2</td><td>10</td><td>4</td></tr>
+      <tr><td>6</td><td>2</td><td>10</td><td>5</td></tr>
+      <tr><td>7 or 8</td><td>2</td><td>9</td><td>5</td></tr>
+      </tbody></table></div>
+      <h3>Lines</h3>
+      <p>A <strong>Line</strong> is a set of cards that belong together on the Table. There are two kinds:</p>
+      <p><strong>Run:</strong> cards of one colour, with numbers in a row. A run has 3 to 6 cards.</p>
+      <blockquote>Example: <strong>Sky 4 5 6</strong></blockquote>
+      <ul><li>Numbers go from 1 to 12. The 12 does not connect to the 1.</li></ul>
+      <p><strong>Group:</strong> cards of one number, in 3 or 4 <em>different</em> colours.</p>
+      <blockquote>Example: <strong>Coral, Leaf and Plum 8</strong></blockquote>
+      <ul><li>A group never repeats a colour, even when you play with two decks.</li></ul>
+      <p><strong>Full Line:</strong> a run of 6 cards, or a group with all 4 colours. Take it off the Table right away and shuffle it back into the Bag.</p>
+      <h3>Your turn</h3>
+      <ol><li><strong>Fill your Hand.</strong> Draw cards from the Bag until you have 7.</li><li><strong>Play as much as you like:</strong> <ul><li>Make new Lines with cards from your Hand.</li><li>Add cards to Lines already on the Table.</li><li>Move cards that are already on the Table from one Line to another.</li></ul> <p>Every card must stay on the Table. Every Line must be correct when you finish.</p> <p>On any play you can use <strong>the top card of your Stack</strong>, one at a time. When you play it, turn over the next one and keep going.</p></li><li><strong>End your turn</strong> in one of two ways: <ul><li>Say <strong>"Done!"</strong></li><li>Or say <strong>"Swap &amp; pass":</strong> swap the top card of your Stack for a card from your Hand. The card from your Hand goes face up on top of your Stack. Then you may make one more play, and your turn ends.</li></ul> <p>Either way: <strong>if you played no cards this turn, draw 2 cards from the Bag.</strong> You can never have more than 12 cards in your Hand.</p></li></ol>
+      <h3>Sparks ✦</h3>
+      <ul><li>A <strong>Spark</strong> stands in for one card. Where you put it decides which card it is: <ul><li>In a run, it takes the place of a missing number.</li><li>In a group, it counts as a missing colour.</li></ul></li><li>Every Line needs at least one real card.</li></ul>
+      <p><strong>To take back a Spark:</strong> swap it for the exact card it stands in for. In a group, any missing colour will do. If you take back a Spark, you must play it again in the same turn.</p>
+      <h3>A wrong Table</h3>
+      <p>If any Line on the Table is wrong when your turn ends:</p>
+      <ol><li>Put the Table back the way it was at the start of your turn.</li><li>Take the cards you played back into your Hand.</li><li>Draw 2 cards from the Bag.</li></ol>
+      <p><em>(This never happens in the online game. The app won't let you finish with a wrong Table.)</em></p>
+      <h3>The Market</h3>
+      <p><strong>When it opens:</strong> at the end of a turn in which a Full Line left the Table. The player who took that turn takes the <strong>Market</strong> card. There is only one Market per round of turns. Another one can't open until that player has taken another turn.</p>
+      <p><strong>How to trade:</strong></p>
+      <ul><li>Each player may offer 1, 2 or 3 cards from their Hand, face down, and say out loud how many: <em>"Two!"</em></li><li>If two players call the same number, they swap those cards without looking.</li><li>You may trade more than once.</li><li>Nobody called your number? Swap your cards for the top cards of the Bag.</li></ul>
+      <p><strong>When it closes:</strong> when everyone has said <strong>"Done!"</strong></p>
+      <h3>End of the round and scoring</h3>
+      <p>The player who plays the last card from their Stack <strong>wins</strong>. The round ends right then.</p>
+      <p><strong>Scoring:</strong> everyone counts the cards left in their Stack. The winner scores <strong>5 points for each card</strong> left in the other players' Stacks. The winner always scores at least 10 points.</p>
+      <p><strong>A game</strong> is played to 100 points.</p>
+      <p><strong>If nobody plays:</strong> if a full round of turns goes by with no one playing a card, turn over cards from the Bag as you did at setup until three make a Line. Put that new Line on the Table and keep playing.</p>
+      <p><strong>If you get stuck:</strong> if the Bag is empty and a full round of turns goes by with no one playing a card, the player with the smallest Stack wins. If there's a tie, those players share the win.</p>
+      <h3>First game: Simple Table</h3>
+      <p>For your first game, play with the <strong>Simple Table</strong>. You may only make new Lines or add cards to Lines already there. You may not move cards or split Lines.</p>
+      <h3>Common questions</h3>
+      <p><strong>Can I play the top card of my Stack?</strong><br>Yes, one at a time. When you play it, turn over the next one and keep going.</p>
+      <p><strong>Can I put two Coral 8s in the same group?</strong><br>No. A group never repeats a colour, even with two decks.</p>
+      <p><strong>Does 1 come after 12?</strong><br>No. Runs go from 1 to 12 and stop there.</p>
+      <p><strong>What if I don't play anything on my turn?</strong><br>Draw 2 cards from the Bag, but never go over 12 cards in your Hand.</p>
+      <p><strong>Can I make a Line with only Sparks?</strong><br>No. Every Line needs at least one real card.</p>
+      <p><strong>Nobody called my number at the Market. Do I lose my chance?</strong><br>No. Swap your cards for the top cards of the Bag.</p>
+      <h3>Turn card</h3>
+      <blockquote><strong>YOUR TURN</strong><br>1. Fill your Hand up to 7.<br>2. Make, add to or move Lines.<br>3. Use the top card of your Stack.<br>4. Say "Done!" or "Swap &amp; pass".<br>Played no cards? Draw 2.<br>A Full Line left the Table? Open the Market.<br>Empty your Stack to win.</blockquote>
+      </div>
+    </article>
+
+    <footer class="g-credits">
+      <p><span lang="es">Juego original. Arte de las cartas: Claude (CC0).</span><span lang="en">An original game. Card art: Claude (CC0).</span></p>
+      <p><span lang="es">Hecho por Luki Web Co.</span><span lang="en">Built by Luki Web Co.</span></p>
+    </footer>
+  </main>
+</body>
+</html>

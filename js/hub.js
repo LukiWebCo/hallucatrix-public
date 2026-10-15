@@ -32,7 +32,8 @@ const WELLS = [
       es: "Nuestro juego de cartas familiar. Fácil de aprender.",
       en: "Our family card game. Easy to learn."
     },
-    img: "img/wells/dots-and-lines.webp"
+    img: "img/wells/dots-and-lines.webp",
+    url: "puntos/"
   },
   {
     name: "Conquián",
@@ -40,7 +41,8 @@ const WELLS = [
       es: "El juego de cartas de siempre, con baraja española.",
       en: "The old card game, Spanish deck."
     },
-    img: "img/wells/conquian.webp"
+    img: "img/wells/conquian.webp",
+    url: "conquian/"
   }
 ];
 
@@ -53,7 +55,8 @@ WELLS.forEach((well) => {
   const anchor = document.createElement("a");
   anchor.className = "hx-well";
   anchor.href = well.url || "#";
-  if (well.url) {
+  const external = /^https?:/.test(well.url || "");
+  if (external) {
     anchor.target = "_blank";
     anchor.rel = "noopener";
   }
@@ -98,16 +101,22 @@ WELLS.forEach((well) => {
   phase.append(orb, text);
   anchor.append(phase);
   anchor.addEventListener("click", (event) => {
-    if (!well.url) event.preventDefault();
+    if (!well.url || !external) event.preventDefault();
     byId("overlayTextEs").textContent = `Cayendo en ${well.name}…`;
     byId("overlayTextEn").textContent = `Falling into ${well.name}…`;
     overlay.hidden = false;
+    // Our own pages open in this tab, after a moment of falling.
+    if (well.url && !external) setTimeout(() => { window.location.href = well.url; }, reduceMotion ? 0 : 900);
   });
   wellsEl.append(anchor);
 
 });
 
 byId("climbOut").addEventListener("click", () => {
+  overlay.hidden = true;
+});
+// Coming back with the Back button restores the page from cache with the overlay still up.
+window.addEventListener("pageshow", () => {
   overlay.hidden = true;
 });
 

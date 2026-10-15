@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es" translate="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06100E">
+  <title>Conquián · Hallucatrix</title>
+  <meta name="description" lang="es" content="Conquián: el juego de cartas de siempre, con baraja española. Reglas y juego en línea.">
+  <meta name="description" lang="en" content="Conquián: the old card game, Spanish deck. Rules and online play.">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/games.css">
+  <script src="../js/lang.js"></script>
+  <script defer src="../js/page.js"></script>
+</head>
+<body class="g-conquian">
+  <header class="g-top">
+    <a class="g-home" href="../">← Hallucatrix</a>
+    <button type="button" id="langToggle" class="g-lang" aria-label="Switch to English">EN</button>
+  </header>
+
+  <main>
+    <section class="g-hero">
+      <div class="g-art" aria-hidden="true">
+        <img src="img/o12.svg" alt="" width="64">
+        <img src="img/c12.svg" alt="" width="64">
+        <img src="img/e11.svg" alt="" width="64">
+        <img src="img/b12.svg" alt="" width="64">
+      </div>
+      <h1>Conquián</h1>
+      <p class="g-tagline">
+        <span lang="es">El juego de cartas de siempre, con baraja española.</span>
+        <span lang="en">The old card game, Spanish deck.</span>
+      </p>
+    </section>
+
+    <section class="g-actions">
+      <div class="g-action">
+        <h2><span lang="es">Video</span><span lang="en">Video</span></h2>
+        <p><span lang="es">Cómo se juega, en un par de minutos.</span><span lang="en">How to play, in a couple of minutes.</span></p>
+        <span class="g-soon"><span lang="es">Muy pronto</span><span lang="en">Coming soon</span></span>
+      </div>
+      <div class="g-action">
+        <h2><span lang="es">Jugar en línea</span><span lang="en">Play online</span></h2>
+        <p><span lang="es">Practica contra la computadora o abre una mesa con tu gente.</span><span lang="en">Practise against the computer or open a table with your people.</span></p>
+        <span class="g-soon"><span lang="es">Muy pronto</span><span lang="en">Coming soon</span></span>
+      </div>
+    </section>
+
+    <article class="g-rules">
+      <div lang="es">
+      <h2>Cómo se juega</h2>
+      <p><strong>La meta:</strong> sé quien baje primero todas sus cartas en juegos: 11 en el Clásico (tus 10 y una que tomes), 10 en Familia.</p>
+
+      <h3>La baraja</h3>
+      <p>Baraja española de 40 cartas: <strong>Oros, Copas, Espadas y Bastos</strong>, del 1 al 7 y luego <strong>Sota, Caballo y Rey</strong>. No hay 8 ni 9.</p>
+      <p>El orden es 1 2 3 4 5 6 7 Sota Caballo Rey. El As va solo abajo: Rey, 1, 2 no es corrida.</p>
+
+      <h3>Los juegos</h3>
+      <figure class="g-example">
+        <div class="g-cards">
+          <img src="img/e6.svg" alt="6 de Espadas" width="58">
+          <img src="img/e7.svg" alt="7 de Espadas" width="58">
+          <img src="img/e10.svg" alt="Sota de Espadas" width="58">
+          <img src="img/e11.svg" alt="Caballo de Espadas" width="58">
+        </div>
+        <figcaption><strong>Corrida:</strong> mismo palo, seguidas. Después del 7 va la Sota.</figcaption>
+      </figure>
+      <figure class="g-example">
+        <div class="g-cards">
+          <img src="img/o12.svg" alt="Rey de Oros" width="58">
+          <img src="img/c12.svg" alt="Rey de Copas" width="58">
+          <img src="img/b12.svg" alt="Rey de Bastos" width="58">
+        </div>
+        <figcaption><strong>Tercia:</strong> 3 o 4 del mismo número, de palos distintos.</figcaption>
+      </figure>
+
+      <h3>Clásico (2 personas)</h3>
+      <ol>
+        <li>Reparte 10 cartas a cada quien. Las otras 20 son el mazo, boca abajo.</li>
+        <li>Se voltea una carta en medio. Aquí nunca se mete nada a la mano.</li>
+        <li>Si te la ofrecen, solo la tomas si la bajas en ese momento en un juego (<strong>¡Me sirve!</strong>). También puedes reacomodar tus juegos.</li>
+        <li>Luego tiras una carta. Se la ofrecen al que sigue.</li>
+        <li>¿Nadie la quiere? Se muere, y se voltea la siguiente.</li>
+      </ol>
+      <p><strong>¡Te obligo!</strong> Si la carta le hace juego al que sigue, lo puedes obligar a tomarla. Da gusto hacerlo y coraje que te lo hagan.</p>
+      <p>¿Ya bajaste todas y te falta una? Esperas una carta más que le quede a tus juegos.</p>
+      <p><strong>Tablas:</strong> ¿se acaba el mazo y nadie ganó? Nadie gana, y la siguiente mano vale doble.</p>
+
+      <h3>En familia (3 o 4 personas)</h3>
+      <ul>
+        <li>Dos barajas revueltas. 9 cartas a cada quien; ganas al bajar 10.</li>
+        <li>Al empezar, todos le pasan una carta al de la izquierda (el <strong>Cambio</strong>).</li>
+        <li>Cada carta se le ofrece primero a quien le toca y luego solo al de su izquierda. Si nadie la toma, se muere.</li>
+      </ul>
+      </div>
+
+      <div lang="en">
+      <h2>How to play</h2>
+      <p><strong>The goal:</strong> be the first to lay down all your cards in melds: 11 in Classic (your 10, plus one you take), 10 in Familia.</p>
+
+      <h3>The deck</h3>
+      <p>The 40-card Spanish deck: <strong>Coins, Cups, Swords and Clubs</strong>, 1 to 7, then <strong>Jack (Sota), Knight (Caballo) and King (Rey)</strong>. No 8s or 9s.</p>
+      <p>The order is 1 2 3 4 5 6 7 Jack Knight King. The Ace is low only: King, 1, 2 is not a run.</p>
+
+      <h3>Melds</h3>
+      <figure class="g-example">
+        <div class="g-cards">
+          <img src="img/e6.svg" alt="6 of Swords" width="58">
+          <img src="img/e7.svg" alt="7 of Swords" width="58">
+          <img src="img/e10.svg" alt="Jack of Swords" width="58">
+          <img src="img/e11.svg" alt="Knight of Swords" width="58">
+        </div>
+        <figcaption><strong>A run:</strong> same suit, in a row. After the 7 comes the Jack.</figcaption>
+      </figure>
+      <figure class="g-example">
+        <div class="g-cards">
+          <img src="img/o12.svg" alt="King of Coins" width="58">
+          <img src="img/c12.svg" alt="King of Cups" width="58">
+          <img src="img/b12.svg" alt="King of Clubs" width="58">
+        </div>
+        <figcaption><strong>A set:</strong> 3 or 4 of the same number, all different suits.</figcaption>
+      </figure>
+
+      <h3>Classic (2 players)</h3>
+      <ol>
+        <li>Deal 10 cards each. The other 20 are the pile, face down.</li>
+        <li>A card is turned up in the middle. You never pick cards up into your hand.</li>
+        <li>If it's offered to you, take it only if it goes straight into a meld (<strong>¡Me sirve!</strong>). You can also move your own melds around.</li>
+        <li>Then throw one card away. It's offered to the next player.</li>
+        <li>Nobody wants it? It's dead, and the next card is turned up.</li>
+      </ol>
+      <p><strong>¡Te obligo!</strong> If the card fits one of the next player's melds, you can make them take it. Fun to do, sad to get.</p>
+      <p>All your cards down but one short? Then you wait for one more card that fits your melds.</p>
+      <p><strong>Tablas:</strong> the pile runs out and nobody's out? Nobody wins, and the next hand is worth double.</p>
+
+      <h3>Familia (3 or 4 players)</h3>
+      <ul>
+        <li>Two decks shuffled together. 9 cards each; lay down 10 to win.</li>
+        <li>First, everyone passes one card to the left (the <strong>Cambio</strong>).</li>
+        <li>Each card is offered first to the player whose turn it is, then only to the next player on the left. If nobody takes it, it's dead.</li>
+      </ul>
+      </div>
+    </article>
+
+    <footer class="g-credits">
+      <p><span lang="es">Reglas clásicas según John McLeod, en <a href="https://www.pagat.com/rummy/conquian.html" rel="noopener noreferrer">pagat.com</a>. Las reglas en familia son nuestras.</span><span lang="en">Classic rules as written up by John McLeod at <a href="https://www.pagat.com/rummy/conquian.html" rel="noopener noreferrer">pagat.com</a>. The Familia rules are our own.</span></p>
+      <p><span lang="es">Arte de las cartas: Claude (CC0).</span><span lang="en">Card art: Claude (CC0).</span></p>
+      <p><span lang="es">Hecho por Luki Web Co.</span><span lang="en">Built by Luki Web Co.</span></p>
+    </footer>
+  </main>
+</body>
+</html>
