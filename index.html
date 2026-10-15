@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06100E">
+  <title>Hallucatrix</title>
+  <meta name="description" lang="es" content="Hallucatrix: proyectos divertidos de Luki Web Co. Todo aquí es real. Probablemente.">
+  <meta name="description" lang="en" content="Hallucatrix: fun projects by Luki Web Co. Everything here is real. Probably.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/hub.css">
+  <script defer src="js/hub.js"></script>
+</head>
+<body>
+  <div id="page">
+    <header class="hx-header">
+      <div class="hx-brand">
+        <div id="titleHome" class="hx-title-home">
+          <h1><button type="button" id="title" class="hx-title">Hallucatrix</button></h1>
+        </div>
+        <p id="tagline" class="hx-tagline">
+          <span>Todo aquí es real. Probablemente.</span>
+          <span lang="en">Everything here is real. Probably.</span>
+        </p>
+      </div>
+    </header>
+
+    <main class="hx-main">
+      <div class="hx-stage">
+        <div class="hx-entrance" id="hole" aria-hidden="true">
+          <div class="hx-swirl"></div>
+          <div class="hx-hole"></div>
+          <div class="hx-shine"></div>
+        </div>
+        <div id="wells" class="hx-wells" aria-label="Proyectos / Projects"></div>
+      </div>
+    </main>
+
+    <div class="hx-yard" id="yard" aria-hidden="true">
+      <svg class="hx-poop" id="poop" viewBox="0 0 26 22">
+        <path d="M3 21 q-3 -5 3 -6 q-2 -5 4 -6 q0 -6 5 -8 q1 4 3 5 q5 1 3 5 q5 1 4 5 q2 4 -3 5z" fill="#F4F4EF"></path>
+        <path d="M8 13 q3 2 7 0 M6 18 q6 2 13 0" stroke="#C9CCC4" stroke-width="1.5" fill="none" stroke-linecap="round"></path>
+      </svg>
+      <div class="hx-rooster" id="rooster">
+        <div class="hx-rooster-face" id="roosterFace">
+          <svg viewBox="0 0 96 96" width="96" height="96">
+            <path d="M30 52 q-26 -10 -24 -40 q12 14 22 22 q-6 -20 4 -30 q2 22 12 34z" fill="#1F6B4F"></path>
+            <path d="M28 50 q-18 -4 -20 -26 q10 10 20 16z" fill="#C2412F"></path>
+            <path d="M34 46 q-2 -18 8 -28 q0 16 6 24z" fill="#E07A2E"></path>
+            <ellipse cx="46" cy="60" rx="22" ry="17" fill="#B4472F"></ellipse>
+            <path d="M36 56 q12 -8 22 2 q-10 10 -22 -2z" fill="#E59A3A"></path>
+            <g class="hx-head">
+              <path d="M56 50 q4 -14 12 -18 l6 10 q-4 8 -10 14z" fill="#E07A2E"></path>
+              <circle cx="68" cy="32" r="9" fill="#C9543A"></circle>
+              <path d="M60 26 q2 -9 6 -3 q2 -9 6 -2 q3 -7 6 1 q2 5 -3 7 h-13 q-4 -1 -2 -3z" fill="#E8344A"></path>
+              <path d="M76 31 l10 3 l-10 4z" fill="#F6C445"></path>
+              <circle cx="71" cy="30" r="2.2" fill="#13201C"></circle>
+              <path d="M73 38 q3 8 -2 10 q-3 -5 2 -10z" fill="#E8344A"></path>
+            </g>
+            <path class="hx-leg hx-leg-a" d="M42 76 v14 M38 90 h8" stroke="#F6C445" stroke-width="3" stroke-linecap="round" fill="none"></path>
+            <path class="hx-leg hx-leg-b" d="M52 76 v14 M48 90 h8" stroke="#F6C445" stroke-width="3" stroke-linecap="round" fill="none"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <footer class="hx-footer">
+      <span>Hecho por Luki Web Co. Parte, a propósito.</span>
+      <span lang="en">Built by Luki Web Co. Some of it on purpose.</span>
+    </footer>
+
+    <div id="overlay" class="hx-overlay" hidden>
+      <p class="hx-overlay-title">
+        <span id="overlayTextEs"></span>
+        <span lang="en" id="overlayTextEn"></span>
+      </p>
+      <p class="hx-overlay-subtitle">
+        <span>Alivio. Luego, misterio.</span>
+        <span lang="en">Relief. Then mystery.</span>
+      </p>
+      <button type="button" id="climbOut" class="hx-climb-out">
+        <span>Volver a salir</span>
+        <span lang="en">Climb back out</span>
+      </button>
+    </div>
+  </div>
+</body>
+</html>
