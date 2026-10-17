@@ -221,7 +221,6 @@ yard.addEventListener("pointerleave", () => {
 
 const title = byId("title");
 const home = byId("titleHome");
-const hole = byId("hole");
 const tagline = byId("tagline");
 let spooks = 0;
 let settled = false;
@@ -250,8 +249,8 @@ function positionFor(x, y) {
   };
 }
 
-function holeCenter() {
-  const bounds = hole.getBoundingClientRect();
+function wellsCenter() {
+  const bounds = wellsEl.getBoundingClientRect();
   return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
 }
 
@@ -289,7 +288,7 @@ function goWild() {
 
   flyTimers.push(setTimeout(() => {
     flying = false;
-    const center = holeCenter();
+    const center = wellsCenter();
     const bounds = title.getBoundingClientRect();
     const titleCenter = { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
     const position = positionFor(
@@ -300,11 +299,11 @@ function goWild() {
   }, hops * 280 + 900));
 }
 
-function settleInHole() {
+function settleOnWells() {
   clearFlyTimers();
   settled = true;
   title.classList.add("hx-settled");
-  const center = holeCenter();
+  const center = wellsCenter();
   animateTitle(transformFor(positionFor(center.x, center.y), 0, 1.1), 1100, "cubic-bezier(.3,1.4,.5,1)");
 }
 
@@ -318,7 +317,7 @@ byId("page").addEventListener("pointermove", (event) => {
   if (distance > Math.max(140, bounds.width * 0.7)) return;
 
   spooks += 1;
-  if (spooks >= 3) settleInHole();
+  if (spooks >= 3) settleOnWells();
   else goWild();
 });
 
