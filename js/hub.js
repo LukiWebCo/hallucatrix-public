@@ -249,11 +249,6 @@ function positionFor(x, y) {
   };
 }
 
-function wellsCenter() {
-  const bounds = wellsEl.getBoundingClientRect();
-  return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
-}
-
 function transformFor(position, rotation, scale) {
   return `translate(${Math.round(position.x)}px, ${Math.round(position.y)}px) rotate(${Math.round(rotation)}deg) scale(${scale.toFixed(2)})`;
 }
@@ -286,25 +281,21 @@ function goWild() {
     animateTitle(transformFor(position, sign * randomBetween(18, 38), randomBetween(0.8, 1.2)), 500, "cubic-bezier(.2,1.6,.4,1)");
   }, hops * 280));
 
+  // Then it drifts slowly back to its place in the header; the tagline returns once it is home.
   flyTimers.push(setTimeout(() => {
     flying = false;
-    const center = wellsCenter();
-    const bounds = title.getBoundingClientRect();
-    const titleCenter = { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
-    const position = positionFor(
-      titleCenter.x + (center.x - titleCenter.x) * 0.6,
-      titleCenter.y + (center.y - titleCenter.y) * 0.6
-    );
-    animateTitle(transformFor(position, 0, 1), 7000, "cubic-bezier(.25,.1,.25,1)");
+    animateTitle("none", 7000, "cubic-bezier(.25,.1,.25,1)");
+    flyTimers.push(setTimeout(() => tagline.classList.remove("hx-tagline-hidden"), reduceMotion ? 0 : 7000));
   }, hops * 280 + 900));
 }
 
-function settleOnWells() {
+// Third spook: it gives up, bounces home and glows there until clicked.
+function settleHome() {
   clearFlyTimers();
   settled = true;
   title.classList.add("hx-settled");
-  const center = wellsCenter();
-  animateTitle(transformFor(positionFor(center.x, center.y), 0, 1.1), 1100, "cubic-bezier(.3,1.4,.5,1)");
+  tagline.classList.remove("hx-tagline-hidden");
+  animateTitle("none", 1100, "cubic-bezier(.3,1.4,.5,1)");
 }
 
 byId("page").addEventListener("pointermove", (event) => {
@@ -317,7 +308,7 @@ byId("page").addEventListener("pointermove", (event) => {
   if (distance > Math.max(140, bounds.width * 0.7)) return;
 
   spooks += 1;
-  if (spooks >= 3) settleOnWells();
+  if (spooks >= 3) settleHome();
   else goWild();
 });
 
