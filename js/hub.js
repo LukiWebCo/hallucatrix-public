@@ -24,7 +24,8 @@ const WELLS = [
       es: "Acelera a fondo. Duy insiste.",
       en: "Twist the throttle. Duy insists."
     },
-    img: "img/wells/duys-racers.webp"
+    img: "img/wells/duys-racers.webp",
+    url: "https://duys-racers.hallucatrix.com/"
   },
   {
     name: "Dots & Lines",
