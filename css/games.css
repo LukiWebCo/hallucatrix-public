@@ -185,6 +185,7 @@ h1 {
 .g-cards img { width: 58px; height: auto; border-radius: 5px; }
 .g-example { margin: 14px 0; }
 .g-example figcaption { color: var(--soft); font-size: 0.95rem; }
+.g-print-preview { display: block; width: 100%; height: auto; border-radius: 8px; }
 
 .g-credits {
   margin-top: 40px;
