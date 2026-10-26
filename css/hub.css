@@ -248,6 +248,11 @@ html[lang="en"] body [lang="es"] {
   animation-delay: -5.5s;
 }
 
+.hx-well:nth-child(6) .hx-phase {
+  animation-duration: 12s;
+  animation-delay: -9s;
+}
+
 .hx-well:hover,
 .hx-well:focus-visible {
   z-index: 2;
@@ -317,6 +322,10 @@ html[lang="en"] body [lang="es"] {
 
 .hx-well:nth-child(5) .hx-orb {
   --tint: #e2b544;
+}
+
+.hx-well:nth-child(6) .hx-orb {
+  --tint: #4fd1c5;
 }
 
 .hx-well:hover .hx-orb {

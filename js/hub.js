@@ -45,6 +45,14 @@ const WELLS = [
     },
     img: "img/wells/conquian.webp",
     url: "conquian/"
+  },
+  {
+    name: "Cruces",
+    line: {
+      es: "Palabras que cruzan el español y el inglés. Un reto al día.",
+      en: "Words that cross Spanish and English. One puzzle a day."
+    },
+    url: "cruces/"
   }
 ];
 

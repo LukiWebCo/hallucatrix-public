@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src data:; base-uri 'none'; form-action 'none'">
+  <meta name="description" content="Cruces: un juego diario de palabras en español e inglés.">
+  <title>Cruces</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./cruces.css">
+  <script type="module" src="./cruces.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <div><a id="home" class="home" href="../">← Hallucatrix</a><h1>Cruces</h1><p id="tagline">Un juego diario entre dos idiomas.</p></div>
+      <button id="language" type="button" aria-label="Switch to English">EN</button>
+    </header>
+    <p id="intro">Encuentra cuatro grupos de cuatro palabras. Las palabras no cambian de idioma.</p>
+    <p id="rules">Selecciona cuatro fichas y comprueba el grupo. Intentos ilimitados; contamos los errores. Nuevo juego a tu medianoche local.</p>
+    <p id="draft" class="notice" hidden></p>
+    <p id="daily" class="daily"></p>
+    <p id="message" role="status" aria-live="polite" aria-atomic="true">Cargando…</p>
+    <p id="storage-warning" class="warning" role="alert" hidden></p>
+    <section id="game" aria-label="Tablero" hidden>
+      <div id="solved"></div>
+      <div id="tiles" class="tiles"></div>
+      <p id="counters"></p>
+      <div id="controls" class="controls">
+        <button id="shuffle" type="button">Mezclar</button>
+        <button id="deselect" type="button">Deseleccionar</button>
+        <button id="submit" class="primary" type="button">Comprobar</button>
+        <button id="reveal" type="button">Revelar y terminar</button>
+      </div>
+      <div id="reveal-confirm" class="notice" hidden>
+        <p id="confirm-text"></p>
+        <button id="confirm-reveal" type="button"></button>
+        <button id="cancel-reveal" type="button"></button>
+      </div>
+      <section id="results" hidden>
+        <h2 id="results-title"></h2>
+        <p id="streak"></p>
+        <button id="share" class="primary" type="button">Copiar resultado</button>
+        <div id="share-fallback" hidden>
+          <label id="share-label" for="share-text"></label>
+          <textarea id="share-text" readonly rows="9" spellcheck="false"></textarea>
+        </div>
+        <h2 id="learn-title"></h2>
+        <div id="explanations"></div>
+      </section>
+    </section>
+    <footer><p id="privacy">El progreso y la racha solo se guardan en este navegador. Si borras sus datos, los pierdes.</p></footer>
+    <noscript>Activa JavaScript para jugar. Enable JavaScript to play.</noscript>
+  </main>
+</body>
+</html>
