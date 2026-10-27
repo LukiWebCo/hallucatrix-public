@@ -8,9 +8,10 @@
 //   4 move   green 6 needs a card moved: tap Hint and follow it
 //   5 market purple 6 clears the 6s; Done opens the Market; trade or Done!
 //   6 win    how you win (Let's play!)
-import { h } from '../dom.js?v=18426296defe';
-import { t } from '../i18n.js?v=18426296defe';
-import { stackText } from './dots.js?v=18426296defe';
+import { h } from '../dom.js?v=1bb003a1a4fc';
+import { t } from '../i18n.js?v=1bb003a1a4fc';
+import { stackText } from './dots.js?v=1bb003a1a4fc';
+import { migrateStorageKey } from '../storage.js?v=1bb003a1a4fc';
 
 const STEPS = ['stack', 'line', 'top', 'move', 'market', 'win'];
 
@@ -28,15 +29,13 @@ function title(step) {
 export class Coach {
   constructor(screen, roomId) {
     this.screen = screen;
-    this.key = `eai.games.coach.${roomId}`;
+    this.key = `hxg.games.coach.${roomId}`;
     this.i = 0;
     this.done = false;
     this.marketSeen = false;
-    try {
-      const saved = localStorage.getItem(this.key);
-      if (saved === 'done') this.done = true;
-      else if (saved && /^[0-5]$/.test(saved)) this.i = Number(saved);
-    } catch { /* private mode: start at the top */ }
+    const saved = migrateStorageKey('local', `eai.games.coach.${roomId}`, this.key);
+    if (saved === 'done') this.done = true;
+    else if (saved && /^[0-5]$/.test(saved)) this.i = Number(saved);
     this.base = null;     // what the current step started from: {hand:Set, top}
   }
 

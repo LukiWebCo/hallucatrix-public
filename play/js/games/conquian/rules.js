@@ -1,15 +1,16 @@
 // Conquián: the one-screen rules (EN/ES), behind the "?" in a Conquián room and before your first hand.
-import { h } from '../../dom.js?v=18426296defe';
-import { t } from '../../i18n.js?v=18426296defe';
-import { cardNode, probeArt } from './cards.js?v=18426296defe';
-import { cardSound } from './sound.js?v=18426296defe';
-import { setViewMode, viewMode } from './view.js?v=18426296defe';
+import { h } from '../../dom.js?v=1bb003a1a4fc';
+import { t } from '../../i18n.js?v=1bb003a1a4fc';
+import { cardNode, probeArt } from './cards.js?v=1bb003a1a4fc';
+import { cardSound } from './sound.js?v=1bb003a1a4fc';
+import { setViewMode, viewMode } from './view.js?v=1bb003a1a4fc';
+import { migrateStorageKey } from '../../storage.js?v=1bb003a1a4fc';
 
-const SEEN = 'eai.games.rules_seen.conquian';
+const SEEN = 'hxg.games.rules_seen.conquian';
 
 
 export function cqRulesSeen() {
-  try { return localStorage.getItem(SEEN) === '1'; } catch { return true; }
+  return migrateStorageKey('local', 'eai.games.rules_seen.conquian', SEEN, '1') === '1';
 }
 function markSeen() { try { localStorage.setItem(SEEN, '1'); } catch { /* private mode */ } }
 

@@ -1,5 +1,5 @@
-import { h } from '../dom.js?v=18426296defe';
-import { t } from '../i18n.js?v=18426296defe';
+import { h } from '../dom.js?v=1bb003a1a4fc';
+import { t } from '../i18n.js?v=1bb003a1a4fc';
 
 export function liveBanner(view, peek, toggle) {
   const name = (view.seats || []).find((seat) => seat.seat === view.draft.seat)?.name || '';

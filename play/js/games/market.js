@@ -1,10 +1,10 @@
-import { styles } from '../styles.js?v=18426296defe';
+import { styles } from '../styles.js?v=1bb003a1a4fc';
 // The MARKET: the full-screen sheet every seat sees at once (live), the leisure card, the bell moment.
 // Shared card faces come from dots.js; the sprite still supplies the bell.
-import { avatar, h } from '../dom.js?v=18426296defe';
-import { t } from '../i18n.js?v=18426296defe';
-import { errText, toast } from '../ui.js?v=18426296defe';
-import { applyArt, faceSvg } from './dots.js?v=18426296defe';
+import { avatar, h } from '../dom.js?v=1bb003a1a4fc';
+import { t } from '../i18n.js?v=1bb003a1a4fc';
+import { errText, toast } from '../ui.js?v=1bb003a1a4fc';
+import { applyArt, faceSvg } from './dots.js?v=1bb003a1a4fc';
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 function s(tag, attrs, ...kids) {

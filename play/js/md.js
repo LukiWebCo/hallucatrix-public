@@ -1,7 +1,7 @@
 // A small, escaped markdown renderer: it builds DOM nodes and only ever sets textContent.
 // Supports headings, paragraphs, lists, blockquotes, code fences, tables, rules, **bold**, *em*,
 // `code`, and Markdown links (http/https only). Raw HTML in the source shows up as text.
-import { h } from './dom.js?v=18426296defe';
+import { h } from './dom.js?v=1bb003a1a4fc';
 
 const INLINE = /(\*\*([^*]+)\*\*|__([^_]+)__|\*([^*\s][^*]*)\*|_([^_\s][^_]*)_|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\))/;
 

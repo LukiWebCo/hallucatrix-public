@@ -9,9 +9,11 @@ export function cambioPick(v) { return !!(v && v.me && phaseOf(v) === 'cambio' &
 export function myMove(v) { return deciding(v) || discarding(v) || cambioPick(v); }
 
 // Simple or Full table, per device (Simple unless chosen). The play screen listens for the change.
-const VIEW_KEY = 'eai.games.cq.view';
+import { migrateStorageKey } from '../../storage.js?v=1bb003a1a4fc';
+
+const VIEW_KEY = 'hxg.games.cq.view';
 export function viewMode() {
-  try { return localStorage.getItem(VIEW_KEY) === 'full' ? 'full' : 'simple'; } catch { return 'simple'; }
+  return migrateStorageKey('local', 'eai.games.cq.view', VIEW_KEY) === 'full' ? 'full' : 'simple';
 }
 export function setViewMode(m) {
   const mode = m === 'full' ? 'full' : 'simple';

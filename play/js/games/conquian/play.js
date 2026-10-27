@@ -1,7 +1,7 @@
-import { styles } from '../../styles.js?v=18426296defe';
-// Conquián: the phone play screen (#/games/r/:id when room.game is "conquian"). contracts/conquian.md §4–§10.
+import { styles } from '../../styles.js?v=1bb003a1a4fc';
+// Conquián: the phone play screen (#/room/:id when room.game is "conquian"). contracts/conquian.md §4–§10.
 //
-//   import { playView } from './conquian/play.js?v=18426296defe';
+//   import { playView } from './conquian/play.js?v=1bb003a1a4fc';
 //   const stop = await playView(root, ctx);   // the same ctx index.js gives the Dots screen (getView, act, onView,
 //                                             // refresh, sfx, reclaim, roomId, hideBack)
 //
@@ -18,20 +18,21 @@ import { styles } from '../../styles.js?v=18426296defe';
 //   (with the phone's sound setting and a buzz) when it becomes your move. On a tablet (768 px+) it's a big table.
 // Full rebuild on every change (cheap), with one-render animation flags so nothing replays. Motion lives in
 // games-conquian.css under prefers-reduced-motion: no-preference.
-import { h, clear } from '../../dom.js?v=18426296defe';
-import { currentLang, t } from '../../i18n.js?v=18426296defe';
-import { backPile, cardName, cardNode, hasArt, meldNode, probeArt } from './cards.js?v=18426296defe';
-import { classify, fits, sortHand, sortMeld } from './melds.js?v=18426296defe';
-import { bestTake, loosest, takeKind, validTake } from './search.js?v=18426296defe';
-import { Take } from './stage.js?v=18426296defe';
-import { cambioPick, deciding, discarding, myMove, phaseOf, viewMode } from './view.js?v=18426296defe';
-import { cardSound } from './sound.js?v=18426296defe';
-import { errMsg, evText, newsLine, takeWhy, whyText } from './text.js?v=18426296defe';
-import { cardBurst, celebrate, stamp } from './fx.js?v=18426296defe';
-import { CqCoach } from './coach.js?v=18426296defe';
-import { maybeFirstRules } from './rules.js?v=18426296defe';
+import { h, clear } from '../../dom.js?v=1bb003a1a4fc';
+import { currentLang, t } from '../../i18n.js?v=1bb003a1a4fc';
+import { backPile, cardName, cardNode, hasArt, meldNode, probeArt } from './cards.js?v=1bb003a1a4fc';
+import { classify, fits, sortHand, sortMeld } from './melds.js?v=1bb003a1a4fc';
+import { bestTake, loosest, takeKind, validTake } from './search.js?v=1bb003a1a4fc';
+import { Take } from './stage.js?v=1bb003a1a4fc';
+import { cambioPick, deciding, discarding, myMove, phaseOf, viewMode } from './view.js?v=1bb003a1a4fc';
+import { cardSound } from './sound.js?v=1bb003a1a4fc';
+import { errMsg, evText, newsLine, takeWhy, whyText } from './text.js?v=1bb003a1a4fc';
+import { cardBurst, celebrate, stamp } from './fx.js?v=1bb003a1a4fc';
+import { CqCoach } from './coach.js?v=1bb003a1a4fc';
+import { maybeFirstRules } from './rules.js?v=1bb003a1a4fc';
+import { migrateStorageKey } from '../../storage.js?v=1bb003a1a4fc';
 
-const SORT_KEY = 'eai.games.cq.sort';
+const SORT_KEY = 'hxg.games.cq.sort';
 const HOLD_MS = 450;          // tap-and-hold a card to see it big
 const POP_MS = 1600;          // the "Your turn!" banner
 
@@ -93,7 +94,7 @@ class CqScreen {
     this.msgTimer = null;
     this.fx = {};
     this.sortBy = 'suit';
-    try { if (localStorage.getItem(SORT_KEY) === 'rank') this.sortBy = 'rank'; } catch { /* default */ }
+    if (migrateStorageKey('local', 'eai.games.cq.sort', SORT_KEY) === 'rank') this.sortBy = 'rank';
     this.history = false;
     this.open = new Set();     // the other players whose table is unfolded (Simple view)
     this.hideResultV = null;
@@ -439,7 +440,7 @@ class CqScreen {
     const r = { top: el.getBoundingClientRect().top, bottom: el2.getBoundingClientRect().bottom };
     const bottom = window.innerHeight - tray.getBoundingClientRect().height - 10;
     // the app's top bar is sticky: never tuck the top of the part under it
-    const bar = document.querySelector('.topbar');
+    const bar = document.querySelector('.groomv-bar');
     const top = (bar ? Math.max(0, bar.getBoundingClientRect().bottom) : 0) + 8;
     let dy = 0;
     if (r.bottom > bottom) dy = r.bottom - bottom;
@@ -845,8 +846,7 @@ class CqScreen {
           !over && nextOk ? h('button', { class: 'gm-btn gm-btn--go gp-btn cq-next', type: 'button', 'data-fk': 'next', disabled: this.busy, onclick: () => this.nextHand() }, t('games.cq.result.next')) : null,
           !over && !nextOk ? h('p', { class: 'cq-wait-next' }, t('games.cq.result.next_soon')) : null,
           !over ? h('button', { class: 'gm-btn gp-btn gp-btn-quiet', type: 'button', 'data-fk': 'see-table', onclick: () => { this.hideResultV = v.v; this.render(); } }, t('games.cq.result.see_table')) : null,
-          over && v.me && !this.ctx.scoped ? h('button', { class: 'gm-btn gm-btn--go gp-btn cq-rematch', type: 'button', 'data-fk': 'rematch', disabled: this.busy, onclick: () => this.rematch() }, t('games.cq.result.again')) : null,
-          over ? h('a', { class: 'gm-btn gp-btn gp-btn-quiet', href: this.ctx.backHash || '#/games/conquian', 'data-fk': 'back2' }, t('games.cq.back')) : null)));
+          over && v.me && !this.ctx.scoped ? h('button', { class: 'gm-btn gm-btn--go gp-btn cq-rematch', type: 'button', 'data-fk': 'rematch', disabled: this.busy, onclick: () => this.rematch() }, t('games.cq.result.again')) : null)));
   }
 }
 

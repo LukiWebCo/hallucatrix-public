@@ -1,21 +1,24 @@
-// Games sub-router: #/games (the hub: both games), #/games/dots and #/games/conquian (each game's home),
-// #/games/new[?game=…], #/games/join[/CODE], #/games/r/:id (room), #/games/tv/:id (TV).
-// main.js calls gamesView(parts) with the hash parts after "games" and puts the returned node in #view.
+// Routes: #/ home, #/puntos, #/puntos/mesa, #/puntos/practicar, #/j/:code, #/codigo,
+// #/room/:id, #/tv/:id?k=…, and #/t/:transfer_token. Conquián uses the same room screens.
 // The room and TV screens own a poller (net.js) that long-polls /wait, falls back to 3 s polling, refetches
 // when the tab comes back, and stops itself once its root leaves the page.
-import { h, icon } from '../dom.js?v=18426296defe';
-import { t } from '../i18n.js?v=18426296defe';
-import { errorBox, state, toast } from '../ui.js?v=18426296defe';
-import { createPoller, games } from './net.js?v=18426296defe';
-import { cqView, dotsView, hubView } from './home.js?v=18426296defe';
-import { gameHome, joinView, newGameView, roomLobbyView } from './lobby.js?v=18426296defe';
-import { bellMoment, loadArt, marketCard, marketSheet } from './market.js?v=18426296defe';
-import { openRules, rulesButton, rulesSeen } from './rules_card.js?v=18426296defe';
-import { resultBoard, seatRail, tableBoard, turnText, tvScreen } from './tv.js?v=18426296defe';
+import { h, icon } from '../dom.js?v=1bb003a1a4fc';
+import { t } from '../i18n.js?v=1bb003a1a4fc';
+import { errorBox, state, toast } from '../ui.js?v=1bb003a1a4fc';
+import { createPoller, games } from './net.js?v=1bb003a1a4fc';
+import { cqView, dotsView, hubView, puntosView } from './home.js?v=1bb003a1a4fc';
+import { copyLink, gameHome, gameName, joinView, newGameView, roomLobbyView, startPracticeRoom, transferView } from './lobby.js?v=1bb003a1a4fc';
+import { bellMoment, loadArt, marketCard, marketSheet } from './market.js?v=1bb003a1a4fc';
+import { openRules, rulesButton, rulesSeen } from './rules_card.js?v=1bb003a1a4fc';
+import { tvScreen } from './tv.js?v=1bb003a1a4fc';
+import { removeTable, table, updateTable } from '../tables.js?v=1bb003a1a4fc';
+import { enableRoomPush, pushSupported } from '../push.js?v=1bb003a1a4fc';
 
 // ---- styles (CSP style-src 'self': same-origin <link>s only) ---------------------------------------
-export function ensureCss() {
-  for (const href of ['games-theme.css', 'games.css', 'games-play.css', 'games-conquian.css']) {
+export function ensureCss(game = null) {
+  const files = ['games-theme.css', 'games.css', 'games-play.css'];
+  if (game === 'conquian') files.push('games-conquian.css');
+  for (const href of files) {
     if (![...document.querySelectorAll('link[rel=stylesheet]')].some(link => new URL(link.href).pathname.endsWith('/' + href))) {
       document.head.append(h('link', { rel: 'stylesheet', href, 'data-games-css': href }));
     }
@@ -27,7 +30,7 @@ export function ensureCss() {
 const sfxReal = { phone: null, tv: null };
 let sfxMod = null;
 function loadSfx() {
-  if (!sfxMod) sfxMod = import('./sfx.js?v=18426296defe').catch(() => null);
+  if (!sfxMod) sfxMod = import('./sfx.js?v=1bb003a1a4fc').catch(() => null);
   return sfxMod;
 }
 function sfxFor(screen) {
@@ -47,28 +50,53 @@ const sfxTv = sfxFor('tv');
 
 // ---- router ---------------------------------------------------------------------------------------
 const ID = /^\d{1,12}$/;
+const practiceFlights = new Map();
+
+async function practiceRoute(game) {
+  if (!practiceFlights.has(game)) {
+    practiceFlights.set(game, startPracticeRoom(game).finally(() => practiceFlights.delete(game)));
+  }
+  try {
+    await practiceFlights.get(game);
+  } catch (error) {
+    return errorBox(error, () => { practiceFlights.delete(game); state.rerender?.(); });
+  }
+  return h('p', { class: 'loading', role: 'status', text: t('games.common.loading') });
+}
 
 export async function gamesView(parts = []) {
-  ensureCss();
+  const [a0, b0, c0] = parts;
+  const [a, query = ''] = (a0 || '').split('?');
+  const [b, queryB = ''] = (b0 || '').split('?');
+  const [c] = (c0 || '').split('?');
+  ensureCss(a === 'conquian' ? 'conquian' : null);
   loadSfx();
   await loadArt();
-  const [a0, b] = parts;
-  const a = a0 == null ? a0 : a0.split('?')[0];   // #/games/new?game=conquian opens New game on that game
   if (a !== 'tv') document.body.classList.remove('games-tv');
   switch (a) {
     case undefined: return hubView();
+    case 'puntos':
+      if (b === 'mesa') return newGameView('dots');
+      if (b === 'practicar') return practiceRoute('dots');
+      return puntosView();
+    case 'conquian':
+      if (b === 'mesa') return newGameView('conquian');
+      if (b === 'practicar') return practiceRoute('conquian');
+      if (b === 'codigo') return joinView('', 'conquian');
+      if (b === 'j') return joinView(c || queryB, 'conquian');
+      return cqView();
+    case 'j': return joinView(a0.includes('?') ? query.slice(5) : b);
+    case 'codigo': return joinView('');
+    case 'room': return ID.test(b || '') ? roomView(b) : errorBox({ key: 'games.errors.not_found' });
+    case 'tv': return ID.test(b || '') ? tvView(b, new URLSearchParams(queryB ? '?' + queryB : '?' + query).get('k')) : errorBox({ key: 'games.errors.not_found' });
+    case 't': return b0 ? transferView(b0) : errorBox({ key: 'games.errors.not_found' });
     case 'dots': return dotsView();
-    case 'conquian': return cqView();
-    case 'new': return newGameView();
-    case 'join': return joinView(b);
-    case 'r': return ID.test(b || '') ? roomView(b) : errorBox({ key: 'games.errors.not_found' });
-    case 'tv': return ID.test(b || '') ? tvView(b) : errorBox({ key: 'games.errors.not_found' });
     default: return errorBox({ key: 'games.errors.not_found' });
   }
 }
 
 // ---- the live room controller (shared by the phone room and the TV) ------------------------------------
-function liveRoom(root, id, first, onStop, spectator = false) {
+function liveRoom(root, id, first, onStop, spectator = false, token = null) {
   let view = first;
   const listeners = new Set();
   const waiters = [];
@@ -86,8 +114,8 @@ function liveRoom(root, id, first, onStop, spectator = false) {
   }
 
   const poller = createPoller({
-    wait: (v, signal, seq) => games.wait(id, v, signal, seq >= 0 ? seq : view.draft_seq, spectator),
-    view: (signal) => games.room(id, signal, spectator),
+    wait: (v, signal, seq) => games.wait(id, v, signal, seq >= 0 ? seq : view.draft_seq, spectator, token),
+    view: (signal) => games.room(id, signal, spectator, token),
     onView: apply,
     alive,
     onStop: (out) => { cleanup(); onStop && onStop(out); },
@@ -121,20 +149,34 @@ function liveRoom(root, id, first, onStop, spectator = false) {
   };
 }
 
-// ---- #/games/r/:id ----------------------------------------------------------------------------------
+// ---- #/room/:id -------------------------------------------------------------------------------------
 async function roomView(id) {
-  const first = await games.room(id);
+  const saved = table(id);
+  const token = saved?.token || null;
+  const spectator = saved?.role === 'watch';
+  const first = await games.room(id, null, spectator, token);
+  ensureCss(first.room.game);
+  let savedStatus = saved?.status;
+  if (saved && savedStatus !== first.room.status) {
+    updateTable(id, { status: first.room.status });
+    savedStatus = first.room.status;
+  }
   const root = h('section', { class: 'groomv', 'data-game': first.room.game });
   const bar = h('div', { class: 'groomv-bar' });
+  const extras = h('div', { class: 'groomv-extras' });
   const lane = h('div', { class: 'groomv-lane' });   // the leisure Market card
   const main = h('div', { class: 'groomv-main' });
   const banner = h('div', { class: 'groomv-banner', role: 'status', hidden: true });
-  root.append(bar, banner, lane, main);
+  const leave = h('div', { class: 'groomv-leave' },
+    h('button', { class: 'btn btn-quiet', type: 'button', onclick: async () => {
+      try { await ctx.leave(); } catch (e) { toast(t(e.key || 'games.errors.server'), 'error'); }
+    } }, t('games.lobby.leave')));
+  root.append(bar, banner, extras, lane, main, leave);
 
   const live = liveRoom(root, id, first, () => {
     banner.hidden = false;
     banner.textContent = t('games.common.lost');
-  });
+  }, spectator, token);
   const ctx = {
     roomId: Number(id),
     getView: live.getView,
@@ -142,15 +184,19 @@ async function roomView(id) {
     onView: live.onView,
     refresh: live.refresh,
     sfx,
-    me: state.me,
+    me: null,
     bell: (el) => bellMoment(sfx, el),
-    hideBack: true,   // the room bar above already has "Games" and the "?"
-    backHash: gameHome(first.room.game || 'dots'),   // "Back to games" after the game: that game's home
-    // Take your seat back from Claude (it covered you after missed turns).
-    reclaim: localStorage.getItem('hxg.room.' + id) ? null : async () => { await games.seats(id, { op: 'reclaim' }); live.refresh(); },
-    // The Smart Hint (read-only): the best move the server sees for your own dots.
-    hint: !localStorage.getItem('hxg.room.' + id) || first.room.settings.practice ? () => games.hint(id) : null,
-    scoped: !!localStorage.getItem('hxg.room.' + id),
+    hideBack: true,   // the room bar above already has the back link and the "?"
+    backHash: gameHome(first.room.game || 'dots'),
+    reclaim: ['player', 'host'].includes(saved?.role) ? async () => { await games.seats(id, { op: 'reclaim' }); live.refresh(); } : null,
+    hint: saved?.role === 'practice' || first.room.settings.hints !== false ? () => games.hint(id) : null,
+    scoped: true,
+    table: saved,
+    leave: async () => {
+      if (saved?.role !== 'watch') await games.seats(id, { op: 'leave' });
+      removeTable(id);
+      location.hash = gameHome(first.room.game || 'dots');
+    },
     // The leisure Market: play.js shows the strip with this button (the live Market opens by itself).
     openMarket: () => { const m = live.getView().market; if (m && m.open) openSheet(!m.live); },
   };
@@ -164,13 +210,9 @@ async function roomView(id) {
 
   function drawBar(view) {
     bar.replaceChildren(
-      ctx.scoped ? h('button', {class:'btn', type:'button', text:t('games.lobby.leave'), onclick: async()=>{
-        await games.act(id, {type:'leave'}); localStorage.removeItem('hxg.room.'+id); location.hash='#/';
-      }}) : null,
-      h('a', { class: 'back gback', href: gameHome(view.room.game || 'dots'), 'aria-label': t('games.common.games') }, icon('back'), h('span', { class: 'gback-l', text: t('games.common.games') })),
+      h('a', { class: 'back gback', href: gameHome(view.room.game || 'dots'), 'aria-label': gameName(view.room.game || 'dots') }, icon('back'), h('span', { class: 'gback-l', text: gameName(view.room.game || 'dots') })),
       view.room.code ? h('span', { class: 'groomv-code', 'aria-label': t('games.common.code_aria', { code: view.room.code.split('').join(' ') }) },
         h('span', { class: 'groomv-code-k', 'aria-hidden': 'true', text: t('games.common.code_short') }), h('span', { 'aria-hidden': 'true', text: view.room.code })) : h('span', { class: 'grow' }),
-      h('a', { class: 'groomv-tv', href: '#/games/tv/' + view.room.id, 'aria-label': t('games.lobby.show_tv') }, tvIcon()),
       soundButton(),
       rulesButton('grules-btn-s', view.room.game));
   }
@@ -178,12 +220,16 @@ async function roomView(id) {
   async function mountPlay() {
     let mod = null;
     const game = live.getView().room.game;
-    try { mod = await (game === 'conquian' ? import('./conquian/play.js?v=18426296defe') : import('./play.js?v=18426296defe')); } catch (e) { console.error(e); mod = null; }
+    try { mod = await (game === 'conquian' ? import('./conquian/play.js?v=1bb003a1a4fc') : import('./play.js?v=1bb003a1a4fc')); } catch (e) {
+      console.error(e);
+      main.replaceChildren(errorBox(e));
+      return;
+    }
     if (mod && typeof mod.playView === 'function') {
       playMounted = true;
       try { await mod.playView(main, ctx); } catch (e) { console.error(e); playMounted = false; main.replaceChildren(errorBox(e)); }
     } else {
-      placeholderPlay(main, ctx);
+      main.replaceChildren(errorBox({ key: 'games.errors.server' }));
     }
   }
 
@@ -199,6 +245,11 @@ async function roomView(id) {
 
   function render(view) {
     drawBar(view);
+    if (saved && savedStatus !== view.room.status) {
+      updateTable(id, { status: view.room.status });
+      savedStatus = view.room.status;
+    }
+    extras.replaceChildren(...(view.room.mode === 'leisure' ? [leisureTools(id, saved, view.room)] : []));
     const want = view.room.status === 'lobby' ? 'lobby' : 'play';
     if (want !== mode) {
       mode = want;
@@ -234,10 +285,48 @@ async function roomView(id) {
   // Someone who came in by a code (never saw the lobby) gets the one-screen rules before their first game.
   if (first.room.game !== 'conquian' && !rulesSeen() && first.me) setTimeout(() => { if (root.isConnected && !document.querySelector('dialog.grules-sheet')) openRules(); }, 400);
   // the sheet lives on <body>; take it down when the room leaves the page
-  live.poller.done.then(() => { closeSheet(); if (live.getView().room.status === 'finished') localStorage.removeItem('hxg.room.' + id); });
+  live.poller.done.then(() => {
+    closeSheet();
+    if (live.getView().room.status === 'finished') updateTable(id, { status: 'finished' });
+  });
   window.addEventListener('hashchange', function off() {
     setTimeout(() => { if (!root.isConnected) { closeSheet(); window.removeEventListener('hashchange', off); } }, 0);
   });
+  return root;
+}
+
+function leisureTools(id, saved, room) {
+  const buttons = [];
+  let transferLink = '';
+  const transfer = h('button', { class: 'btn btn-quiet', type: 'button', onclick: async (ev) => {
+    ev.currentTarget.disabled = true;
+    try {
+      const result = await games.transfer(id);
+      transferLink = `${location.origin}/play/#/t/${encodeURIComponent(result.transfer_token)}`;
+      draw();
+    } catch (e) { toast(t(e.key || 'games.errors.server'), 'error'); ev.currentTarget.disabled = false; }
+  } }, t('games.flow.take_seat'));
+  if (saved?.role === 'player' || saved?.role === 'host') buttons.push(transfer);
+  if (pushSupported() && (saved?.role === 'player' || saved?.role === 'host')) {
+    buttons.push(h('button', { class: 'btn btn-quiet', type: 'button', onclick: async (ev) => {
+      ev.currentTarget.disabled = true;
+      try {
+        const enabled = await enableRoomPush(id);
+        if (enabled) ev.currentTarget.textContent = t('games.app.notify_on');
+        else ev.currentTarget.disabled = false;
+      } catch (e) {
+        toast(t(e.key || 'games.errors.server'), 'error');
+        ev.currentTarget.disabled = false;
+      }
+    } }, t('games.app.notify')));
+  }
+  function draw() {
+    root.replaceChildren(h('div', { class: 'gflow-tools' }, buttons),
+      transferLink ? h('label', { class: 'gopt-label' }, t('games.flow.transfer_link'), h('input', { class: 'ginput', value: transferLink, readonly: true })) : null,
+      transferLink ? h('button', { class: 'btn btn-quiet', type: 'button', onclick: () => copyLink(transferLink) }, t('games.flow.copy_link')) : null);
+  }
+  const root = h('section', { class: 'gflow-tools-wrap' });
+  draw();
   return root;
 }
 
@@ -272,42 +361,18 @@ function speakerIcon() {
   return svg;
 }
 
-function tvIcon() {
-  const ns = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('class', 'icon');
-  svg.setAttribute('aria-hidden', 'true');
-  const p = document.createElementNS(ns, 'path');
-  p.setAttribute('d', 'M3 5h18v12H3zM8 21h8M12 17v4');
-  svg.append(p);
-  return svg;
-}
-
-// Until the play screen (W3b's play.js) is in: a read-only table so the room still works.
-function placeholderPlay(main, ctx) {
-  const draw = (view) => {
-    main.replaceChildren(h('div', { class: 'gph' },
-      h('p', { class: 'gph-turn', text: turnText(view) }),
-      view.result ? resultBoard(view) : null,
-      seatRail(view, 'grail-phone'),
-      tableBoard(view, 'gtable-phone'),
-      h('p', { class: 'gph-note', text: t('games.common.play_soon') })));
-  };
-  draw(ctx.getView());
-  ctx.onView(draw);
-}
-
-// ---- #/games/tv/:id ---------------------------------------------------------------------------------
-async function tvView(id) {
-  const first = await games.room(id, null, true);
+// ---- #/tv/:id ---------------------------------------------------------------------------------------
+async function tvView(id, token) {
+  if (!token) return errorBox({ key: 'games.errors.not_found' });
+  const first = await games.room(id, null, true, token);
+  ensureCss(first.room.game);
   document.body.classList.add('games-tv');
-  const root = h('section', { class: 'gtv-root' });
+  const root = h('section', { class: 'gtv-root', 'data-game': first.room.game });
   const live = liveRoom(root, id, first, () => {
     root.append(h('p', { class: 'gtv-lost', role: 'status', text: t('games.common.lost') }));
-  }, true);
+  }, true, token);
   const screen = first.room.game === 'conquian'
-    ? await (await import('./conquian/tv.js?v=18426296defe')).cqTvScreen(root, { getView: live.getView, sfx: sfxTv })
+    ? await (await import('./conquian/tv.js?v=1bb003a1a4fc')).cqTvScreen(root, { getView: live.getView, sfx: sfxTv })
     : tvScreen(root, { getView: live.getView, sfx: sfxTv, bell: (el) => bellMoment(sfxTv, el) });
   live.onView((v) => screen.update(v));
   // Leaving the TV restores the chrome (main.js also clears it on every route).

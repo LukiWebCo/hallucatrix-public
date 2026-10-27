@@ -1,71 +1,56 @@
-// The New game flow (#/games/new[?game=dots|conquian]), Join with a code (#/games/join), and the room's waiting
-// room (a room in status "lobby", mounted by index.js inside #/games/r/:id). The hub and each game's home: home.js.
-import { avatar, h, icon } from '../dom.js?v=18426296defe';
-import { t } from '../i18n.js?v=18426296defe';
-import { errText, go, state, toast } from '../ui.js?v=18426296defe';
-import { games } from './net.js?v=18426296defe';
-import { dotArt, seatAvatar } from './market.js?v=18426296defe';
-import { openRules, rulesButton } from './rules_card.js?v=18426296defe';
-import { modeLabel } from './tv.js?v=18426296defe';
+import { h, icon } from '../dom.js?v=1bb003a1a4fc';
+import { t } from '../i18n.js?v=1bb003a1a4fc';
+import { errText, go, toast } from '../ui.js?v=1bb003a1a4fc';
+import { saveTable } from '../tables.js?v=1bb003a1a4fc';
+import { games } from './net.js?v=1bb003a1a4fc';
+import { dotArt, seatAvatar } from './market.js?v=1bb003a1a4fc';
+import { modeLabel } from './tv.js?v=1bb003a1a4fc';
 
 const CODE_CHARS = 'BCDFGHJKLMNPQRSTVWXZ23456789';
-const DOTS_MAX_PLAYERS = 8;
 
-function head(title, lede, withRules = true) {
+function head(title, lede) {
   return h('header', { class: 'ghead' },
-    h('div', { class: 'ghead-row' },
-      h('div', { class: 'grow' },
-        h('p', { class: 'eyebrow', text: t('games.lobby.eyebrow') }),
-        h('h1', { class: 'ghead-title', text: title })),
-      withRules ? rulesButton() : null),
+    h('div', { class: 'ghead-row' }, h('h1', { class: 'ghead-title', text: title })),
     lede ? h('p', { class: 'lede ghead-lede', text: lede }) : null);
 }
 
-function back(hash, label, cls = '') {
-  return h('a', { class: 'back gback ' + cls, href: hash }, icon('back'), h('span', null, label));
+function back(hash, label) {
+  return h('a', { class: 'back gback', href: hash }, icon('back'), h('span', null, label));
 }
 
-export const gameName = (g) => (g === 'conquian' ? t('games.cq.name') : t('games.common.game_name'));
-// The page a game's screens go back to: its own home (#/games/dots, #/games/conquian), or the hub.
-export const gameHome = (g) => (g === 'conquian' || g === 'dots' ? '#/games/' + g : '#/games');
-// ?game= on the hash (#/games/new?game=conquian, #/games/join?game=dots), or null.
-export function hashGame() {
-  const m = /[?&]game=(dots|conquian)\b/.exec(location.hash);
-  return m ? m[1] : null;
-}
+export const gameName = (game) => (game === 'conquian' ? t('games.cq.name') : t('games.common.game_name'));
+export const gameHome = (game) => game === 'conquian' ? '#/conquian' : '#/puntos';
+export const hashGame = () => location.hash.startsWith('#/conquian') ? 'conquian' : 'dots';
 
-// ---- room options, said plainly (room cards, the waiting room) ----------------------------------------
-export function optionTags(st, game = 'dots') {
-  st = st || {};
+export function optionTags(settings, game = 'dots') {
+  settings = settings || {};
   const tags = [];
-  if (st.practice) tags.push(t('games.lobby.tag_practice'));
+  if (settings.practice) tags.push(t('games.lobby.tag_practice'));
   else if (game === 'conquian') {
-    // no variant yet: it follows the number of players when the game starts
-    tags.push(st.variant === 'familia' ? t('games.cq.variant.familia') : st.variant === 'classic' ? t('games.cq.variant.classic') : t('games.cq.lobby.tag_auto'));
-    tags.push(st.match_to ? t('games.cq.lobby.tag_to', { n: st.match_to }) : t('games.cq.lobby.tag_one'));
-    if (st.forcing === false) tags.push(t('games.cq.lobby.tag_noforce'));
-    if (st.variant === 'familia' && st.cambio === false) tags.push(t('games.cq.lobby.tag_nocambio'));
-    tags.push(st.hints === false ? t('games.lobby.tag_nohints') : t('games.lobby.tag_hints'));
-    if (st.turn_seconds) tags.push(t('games.lobby.tag_timer', { s: st.turn_seconds }));
+    tags.push(settings.variant === 'familia' ? t('games.cq.variant.familia') : settings.variant === 'classic' ? t('games.cq.variant.classic') : t('games.cq.lobby.tag_auto'));
+    tags.push(settings.match_to ? t('games.cq.lobby.tag_to', { n: settings.match_to }) : t('games.cq.lobby.tag_one'));
+    if (settings.forcing === false) tags.push(t('games.cq.lobby.tag_noforce'));
+    if (settings.variant === 'familia' && settings.cambio === false) tags.push(t('games.cq.lobby.tag_nocambio'));
+    tags.push(settings.hints === false ? t('games.lobby.tag_nohints') : t('games.lobby.tag_hints'));
+    if (settings.turn_seconds) tags.push(t('games.lobby.tag_timer', { s: settings.turn_seconds }));
   } else {
-    tags.push(st.simple_table ? t('games.lobby.tag_simple') : t('games.lobby.tag_free'));
-    tags.push(st.hints === false ? t('games.lobby.tag_nohints') : t('games.lobby.tag_hints'));
-    if (st.turn_seconds) tags.push(t('games.lobby.tag_timer', { s: st.turn_seconds }));
-    if (st.stack_adj < 0) tags.push(t('games.lobby.tag_short'));
-    if (st.stack_adj > 0) tags.push(t('games.lobby.tag_long'));
-    if (st.match_to) tags.push(t('games.lobby.tag_match', { n: st.match_to }));
+    tags.push(settings.simple_table ? t('games.lobby.tag_simple') : t('games.lobby.tag_free'));
+    tags.push(settings.hints === false ? t('games.lobby.tag_nohints') : t('games.lobby.tag_hints'));
+    if (settings.turn_seconds) tags.push(t('games.lobby.tag_timer', { s: settings.turn_seconds }));
+    if (settings.stack_adj < 0) tags.push(t('games.lobby.tag_short'));
+    if (settings.stack_adj > 0) tags.push(t('games.lobby.tag_long'));
+    if (settings.match_to) tags.push(t('games.lobby.tag_match', { n: settings.match_to }));
   }
-  return h('span', { class: 'gopt-tags' }, tags.map((x) => h('span', { class: 'gtag gtag-opt', text: x })));
+  return h('span', { class: 'gopt-tags' }, tags.map((label) => h('span', { class: 'gtag gtag-opt', text: label })));
 }
 
-// ---- New game -----------------------------------------------------------------------------------
-function stepper(i, n) {
-  const kids = [];
-  for (let k = 0; k < n; k++) {
-    if (k) kids.push(h('i', { class: 'gstep-line' + (k <= i ? ' is-on' : '') }));
-    kids.push(h('span', { class: 'gstep-dot' + (k < i ? ' is-done' : k === i ? ' is-on' : '') }, String(k + 1)));
+function stepper(index, count) {
+  const children = [];
+  for (let i = 0; i < count; i++) {
+    if (i) children.push(h('i', { class: 'gstep-line' + (i <= index ? ' is-on' : '') }));
+    children.push(h('span', { class: 'gstep-dot' + (i < index ? ' is-done' : i === index ? ' is-on' : '') }, String(i + 1)));
   }
-  return h('div', { class: 'gstep', role: 'img', 'aria-label': t('games.lobby.step_of', { n: i + 1, total: n }) }, kids);
+  return h('div', { class: 'gstep', role: 'img', 'aria-label': t('games.lobby.step_of', { n: index + 1, total: count }) }, children);
 }
 
 function bigChoice({ title, desc, art, onclick, cls = '', badge = null }) {
@@ -73,7 +58,8 @@ function bigChoice({ title, desc, art, onclick, cls = '', badge = null }) {
     art ? h('span', { class: 'gchoice-art', 'aria-hidden': 'true' }, art) : null,
     h('span', { class: 'gchoice-text' },
       badge ? h('span', { class: 'gtag gtag-best', text: badge }) : null,
-      h('span', { class: 'gchoice-title', text: title }), desc ? h('span', { class: 'gchoice-desc', text: desc }) : null),
+      h('span', { class: 'gchoice-title', text: title }),
+      desc ? h('span', { class: 'gchoice-desc', text: desc }) : null),
     icon('next', 'icon gchoice-go'));
 }
 
@@ -86,377 +72,431 @@ function modeArt(mode) {
 function seg(label, options, value, onChange) {
   const wrap = h('div', { class: 'gopt' }, h('span', { class: 'gopt-label', text: label }));
   const row = h('div', { class: 'gseg', role: 'group', 'aria-label': label });
-  for (const [v, text] of options) {
-    row.append(h('button', { type: 'button', class: 'gseg-btn' + (v === value ? ' on' : ''), 'aria-pressed': String(v === value),
-      onclick: () => { onChange(v); row.querySelectorAll('.gseg-btn').forEach((b, i) => { const on = options[i][0] === v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); }); } }, text));
+  for (const [option, text] of options) {
+    row.append(h('button', {
+      type: 'button',
+      class: 'gseg-btn' + (option === value ? ' on' : ''),
+      'aria-pressed': String(option === value),
+      onclick: () => {
+        onChange(option);
+        row.querySelectorAll('.gseg-btn').forEach((button, index) => {
+          const on = options[index][0] === option;
+          button.classList.toggle('on', on);
+          button.setAttribute('aria-pressed', String(on));
+        });
+      },
+    }, text));
   }
   wrap.append(row);
   return wrap;
 }
 
-// Which game: two big tiles above the mode choice (Dots & Lines stays the default).
-function gamePicker(game, onPick) {
-  const tile = (g, title, desc, art) => h('button', { type: 'button', class: 'ggame ggame-' + g + (game === g ? ' on' : ''), 'aria-pressed': String(game === g), onclick: () => onPick(g) },
-    h('span', { class: 'ggame-art', 'aria-hidden': 'true' }, art),
-    h('span', { class: 'ggame-title', text: title }),
-    h('span', { class: 'ggame-desc', text: desc }));
-  return h('div', { class: 'ggames', role: 'group', 'aria-label': t('games.cq.lobby.pick_game') },
-    h('p', { class: 'gopt-label ggames-k', text: t('games.cq.lobby.pick_game') }),
-    h('div', { class: 'ggames-row' },
-      tile('dots', t('games.common.game_name'), game === 'conquian' ? t('games.cq.lobby.dots_desc') : t('games.lobby.dots_desc'), [dotArt({ c: 'r', n: 1 }, 's'), dotArt({ c: 'b', n: 2 }, 's')]),
-      tile('conquian', t('games.cq.name'), t('games.cq.lobby.cq_desc'), [h('span', { class: 'ggame-card ggame-card-1' }), h('span', { class: 'ggame-card ggame-card-2' })])));
+function saveOpened(result, game, mode, nickname, role) {
+  saveTable({
+    room_id: result.room_id,
+    code: result.code || result.room?.code || '',
+    game,
+    mode,
+    token: result.token,
+    nickname,
+    role,
+    status: result.room?.status || 'lobby',
+    saved_at: Date.now(),
+  });
 }
 
-export async function newGameView() {
-  const s = { step: 0, game: 'dots', mode: null, invite: new Set(), claude: null, simple_table: null, hints: true, turn_seconds: 0, leisure_hours: 24, stack_adj: 0, match_to: 0,
-    variant: null, cq_match: 0, forcing: false, cambio: false };   // Conquián: no forcing, no Cambio unless chosen
-  // From a game's home the game is already chosen (?game=…): no picker. Without it, the picker (Dots by default).
-  const fixed = hashGame();
-  if (fixed) s.game = fixed;
-  // Conquián: Classic is for two; with more people at the table, Familia (2–4).
-  const seatCount = () => 1 + s.invite.size + (s.claude ? 1 : 0);
-  const variant = () => s.variant || (seatCount() > 2 ? 'familia' : 'classic');
-  let people = null;
-  let meNew = true;
-  games.rooms().then((d) => { meNew = !!(d && d.me_new); }).catch(() => {});
-  // Simple table is preselected while anyone in the room (you, or someone you invite) hasn't finished a game.
-  const firstTimers = () => meNew || [...s.invite].some((id) => (people || []).some((p) => p.id === id && p.new));
-  const simple = () => (s.simple_table === null ? firstTimers() : s.simple_table);
+export async function startPracticeRoom(game = 'dots') {
+  const result = await games.practice(game);
+  saveOpened(result, game, 'practice', '', 'practice');
+  go('#/room/' + result.room_id);
+  return result;
+}
+
+export function newGameView(game = hashGame()) {
+  const state = {
+    step: 0, mode: 'live', claude: 'easy', nickname: '',
+    simple_table: true, hints: true, turn_seconds: 0, leisure_hours: 24,
+    stack_adj: 0, match_to: 0,
+  };
   const root = h('section', { class: 'page gnew' });
-  const N = 4;
+  const nickname = h('input', {
+    class: 'ginput', type: 'text', maxlength: 24, autocomplete: 'nickname',
+    required: true, placeholder: t('games.app.nickname'),
+    oninput: (ev) => { state.nickname = ev.target.value; },
+  });
 
-  const nav = (title) => [
-    h('div', { class: 'gnew-top' },
-      s.step ? h('button', { class: 'back gback', type: 'button', onclick: () => { s.step -= 1; draw(); } }, icon('back'), h('span', { text: t('games.common.back') }))
-        : back(gameHome(fixed), fixed ? gameName(fixed) : t('games.common.games'), fixed ? 'gnew-game gnew-game-' + fixed : ''),
-      stepper(s.step, N)),
-    h('h1', { class: 'gnew-title', text: title }),
-  ];
+  function nav(title) {
+    return [
+      h('div', { class: 'gnew-top' },
+        state.step
+          ? h('button', { class: 'back gback', type: 'button', onclick: () => { state.step--; draw(); } }, icon('back'), h('span', { text: t('games.common.back') }))
+          : back(gameHome(game), gameName(game)),
+        stepper(state.step, 4)),
+      h('h1', { class: 'gnew-title', text: title }),
+    ];
+  }
 
-  async function create(btn) {
-    btn.disabled = true;
-    btn.classList.add('is-busy');
+  async function create(button) {
+    if (!state.nickname.trim()) return;
+    button.disabled = true;
+    button.classList.add('is-busy');
     try {
-      const settings = s.game === 'conquian'
-        ? { variant: s.variant, match_to: s.cq_match, forcing: s.forcing, cambio: s.cambio, hints: s.hints }   // null: by players at the start
-        : { simple_table: simple(), hints: s.hints, stack_adj: s.stack_adj, match_to: s.match_to };
-      if (s.mode === 'leisure') settings.leisure_hours = s.leisure_hours;
-      else settings.turn_seconds = s.turn_seconds;
-      const card = s.game === 'conquian' ? await games.create(s.mode, settings, 'conquian') : await games.create(s.mode, settings);
-      if (s.invite.size) await games.invite(card.id, [...s.invite]).catch((e) => toast(errText(e), 'error'));
-      if (s.claude) await games.seats(card.id, { op: 'add_bot', level: s.claude }).catch((e) => toast(errText(e), 'error'));
-      go('#/games/r/' + card.id);
-    } catch (e) {
-      toast(errText(e), 'error');
-      btn.disabled = false;
-      btn.classList.remove('is-busy');
+      const settings = game === 'conquian'
+        ? { variant: null, match_to: 0, forcing: false, cambio: false, hints: state.hints }
+        : { simple_table: state.simple_table, hints: state.hints, stack_adj: state.stack_adj, match_to: state.match_to };
+      if (state.mode === 'leisure') settings.leisure_hours = state.leisure_hours;
+      else settings.turn_seconds = state.turn_seconds;
+      const result = await games.tableOpen(state.mode, game, state.nickname.trim(), state.claude ? [state.claude] : [], settings);
+      saveOpened(result, game, state.mode, state.nickname.trim(), 'host');
+      go('#/room/' + result.room_id);
+    } catch (error) {
+      toast(errText(error), 'error');
+      button.disabled = false;
+      button.classList.remove('is-busy');
     }
   }
 
   function draw() {
-    if (s.step === 0) {
-      root.replaceChildren(...nav(t('games.lobby.new_mode')),
-        ...(fixed ? [] : [gamePicker(s.game, (g) => { s.game = g; draw(); })]),
+    if (state.step === 0) {
+      root.replaceChildren(...nav(t('games.flow.mode_question')),
         h('div', { class: 'gchoices' },
-          ['together', 'live', 'leisure'].map((m) => bigChoice({
-            cls: 'gchoice-' + m, art: modeArt(m),
-            title: modeLabel(m),
-            desc: { together: t('games.lobby.mode_together_desc'), live: t('games.lobby.mode_live_desc'), leisure: t('games.lobby.mode_leisure_desc') }[m],
-            onclick: () => { s.mode = m; s.step = 1; draw(); },
+          ['live', 'leisure', 'together'].map((mode) => bigChoice({
+            cls: 'gchoice-' + mode,
+            art: modeArt(mode),
+            title: mode === 'live' ? t('games.flow.mode_now') : modeLabel(mode),
+            desc: {
+              live: t('games.lobby.mode_live_desc'),
+              leisure: t('games.lobby.mode_leisure_desc'),
+              together: t('games.lobby.mode_together_desc'),
+            }[mode],
+            onclick: () => { state.mode = mode; state.step = 1; draw(); },
           }))));
-    } else if (s.step === 1) {
-      const list = h('div', { class: 'gpeople' });
-      const fill = () => {
-        if (!people) { list.replaceChildren(h('p', { class: 'gcard-empty', text: t('games.common.loading') })); return; }
-        const me = state.me && state.me.id;
-        const folks = people.filter((p) => p.id !== me && !/^claude$/i.test(p.display_name || ''));
-        if (!folks.length) { list.replaceChildren(h('p', { class: 'gcard-empty', text: t('games.lobby.people_none') })); return; }
-        list.replaceChildren(...folks.map((p) => {
-          const on = s.invite.has(p.id);
-          return h('button', { type: 'button', class: 'gperson' + (on ? ' on' : ''), 'aria-pressed': String(on),
-            disabled: s.game === 'dots' && !on && seatCount() >= DOTS_MAX_PLAYERS,
-            onclick: () => { if (s.invite.has(p.id)) s.invite.delete(p.id); else s.invite.add(p.id); draw(); } },
-          avatar(p, 'm'), h('span', { class: 'grow gperson-name', text: p.display_name }),
-          h('span', { class: 'gcheck', 'aria-hidden': 'true' }, on ? '✓' : ''));
-        }));
-      };
-      fill();
-      if (!people) games.people().then((p) => { people = p || []; if (s.step === 1) draw(); }).catch(() => { people = []; if (s.step === 1) draw(); });
-      const n = s.invite.size;
-      root.replaceChildren(...nav(t('games.lobby.new_invite')),
-        h('p', { class: 'lede', text: s.mode === 'together' ? t('games.lobby.invite_hint_together') : t('games.lobby.invite_hint') }),
-        list,
+    } else if (state.step === 1) {
+      const choices = [
+        ['easy', t('games.common.claude_easy'), t('games.lobby.claude_easy_desc')],
+        ['sharp', t('games.common.claude_sharp'), t('games.lobby.claude_sharp_desc')],
+        [null, t('games.lobby.claude_none'), t('games.lobby.claude_none_desc')],
+      ];
+      root.replaceChildren(...nav(t('games.flow.claude_question')),
+        h('div', { class: 'gchoices' }, choices.map(([level, title, desc]) => bigChoice({
+          cls: 'gchoice-claude' + (level === 'easy' ? ' gchoice-best' : ''),
+          title, desc,
+          badge: level === 'easy' ? t('games.lobby.recommended') : null,
+          onclick: () => { state.claude = level; state.step = 2; draw(); },
+        }))));
+    } else if (state.step === 2) {
+      nickname.value = state.nickname;
+      nickname.id = 'table-nickname';
+      root.replaceChildren(...nav(t('games.flow.nickname_question')),
+        h('label', { class: 'gopt-label', for: nickname.id }, t('games.app.nickname'), nickname),
         h('div', { class: 'gnew-foot' },
-          h('button', { class: 'btn btn-primary btn-big', type: 'button', onclick: () => { s.step = 2; draw(); } },
-            n ? (n === 1 ? t('games.lobby.next_invite.one') : t('games.lobby.next_invite.other', { n })) : t('games.lobby.next_skip'))));
-    } else if (s.step === 2) {
-      const claudeArt = () => h('img', { class: 'avatar avatar-m avatar-claude', src: 'games-assets/logo-mark.svg', alt: '' });
-      root.replaceChildren(...nav(t('games.lobby.new_claude')),
-        h('div', { class: 'gchoices' },
-          ...(s.game === 'dots' && 1 + s.invite.size >= DOTS_MAX_PLAYERS ? [] : [
-            bigChoice({ cls: 'gchoice-claude gchoice-best', art: claudeArt(), title: t('games.common.claude_easy'), badge: t('games.lobby.recommended'), desc: t('games.lobby.claude_easy_desc'), onclick: () => { s.claude = 'easy'; s.step = 3; draw(); } }),
-            bigChoice({ cls: 'gchoice-claude', art: claudeArt(), title: t('games.common.claude_sharp'), desc: t('games.lobby.claude_sharp_desc'), onclick: () => { s.claude = 'sharp'; s.step = 3; draw(); } })]),
-          bigChoice({ cls: 'gchoice-none', title: t('games.lobby.claude_none'), desc: t('games.lobby.claude_none_desc'), onclick: () => { s.claude = null; s.step = 3; draw(); } })));
+          h('button', { class: 'btn btn-primary btn-big', type: 'button', onclick: () => {
+            state.nickname = nickname.value;
+            if (!state.nickname.trim()) { nickname.focus(); return; }
+            state.step = 3;
+            draw();
+          } }, t('games.flow.continue'))));
     } else {
-      const cq = s.game === 'conquian';
-      const timer = s.mode === 'leisure'
-        ? seg(t('games.lobby.opt_leisure'), [[4, t('games.lobby.hours_4')], [12, t('games.lobby.hours_12')], [24, t('games.lobby.hours_24')], [48, t('games.lobby.hours_48')]], s.leisure_hours, (v) => { s.leisure_hours = v; })
-        : seg(t('games.lobby.opt_timer'), [[0, t('games.lobby.timer_off')], [60, t('games.lobby.timer_60')], [90, t('games.lobby.timer_90')]], s.turn_seconds, (v) => { s.turn_seconds = v; });
-      const opts = cq ? h('details', { class: 'gopts', open: s.optsOpen || null, ontoggle: (e) => { s.optsOpen = e.target.open; } },
-        h('summary', { class: 'gopts-sum' }, h('span', { text: t('games.lobby.options') }), h('span', { class: 'gopts-hint', text: t('games.lobby.options_hint') })),
+      const timer = state.mode === 'leisure'
+        ? seg(t('games.lobby.opt_leisure'), [[4, t('games.lobby.hours_4')], [12, t('games.lobby.hours_12')], [24, t('games.lobby.hours_24')], [48, t('games.lobby.hours_48')]], state.leisure_hours, (value) => { state.leisure_hours = value; })
+        : seg(t('games.lobby.opt_timer'), [[0, t('games.lobby.timer_off')], [60, t('games.lobby.timer_60')], [90, t('games.lobby.timer_90')]], state.turn_seconds, (value) => { state.turn_seconds = value; });
+      const more = h('details', { class: 'gopts' },
+        h('summary', { class: 'gopts-sum' },
+          h('span', { text: t('games.flow.more_options') }),
+          h('span', { class: 'gopts-hint', text: t('games.lobby.options_hint') })),
         h('div', { class: 'gopts-body' },
-          seg(t('games.cq.lobby.opt_variant'), [['classic', t('games.cq.lobby.variant_classic')], ['familia', t('games.cq.lobby.variant_familia')]], variant(), (v) => { s.variant = v; draw(); }),
-          seatCount() > 2 && variant() === 'classic' ? h('p', { class: 'gwait-hint', text: t('games.cq.lobby.classic_two') }) : null,
-          seg(t('games.cq.lobby.opt_match'), [[0, t('games.cq.lobby.match_one')], [3, t('games.cq.lobby.match_3')], [5, t('games.cq.lobby.match_5')]], s.cq_match, (v) => { s.cq_match = v; }),
-          seg(t('games.cq.lobby.opt_force'), [[true, t('games.cq.lobby.on')], [false, t('games.cq.lobby.off')]], s.forcing, (v) => { s.forcing = v; }),
-          variant() === 'familia' ? seg(t('games.cq.lobby.opt_cambio'), [[true, t('games.cq.lobby.on')], [false, t('games.cq.lobby.off')]], s.cambio, (v) => { s.cambio = v; }) : null,
-          seg(t('games.lobby.opt_hints'), [[true, t('games.lobby.hints_on')], [false, t('games.lobby.hints_off')]], s.hints, (v) => { s.hints = v; draw(); }),
-          timer)) : h('details', { class: 'gopts', open: s.optsOpen || null, ontoggle: (e) => { s.optsOpen = e.target.open; } },
-        h('summary', { class: 'gopts-sum' }, h('span', { text: t('games.lobby.options') }), h('span', { class: 'gopts-hint', text: t('games.lobby.options_hint') })),
-        h('div', { class: 'gopts-body' },
-          seg(t('games.lobby.opt_table'), [[true, t('games.lobby.opt_table_simple')], [false, t('games.lobby.opt_table_free')]], simple(), (v) => { s.simple_table = v; draw(); }),
-          seg(t('games.lobby.opt_hints'), [[true, t('games.lobby.hints_on')], [false, t('games.lobby.hints_off')]], s.hints, (v) => { s.hints = v; draw(); }),
-          s.mode === 'leisure'
-            ? seg(t('games.lobby.opt_leisure'), [[4, t('games.lobby.hours_4')], [12, t('games.lobby.hours_12')], [24, t('games.lobby.hours_24')], [48, t('games.lobby.hours_48')]], s.leisure_hours, (v) => { s.leisure_hours = v; })
-            : seg(t('games.lobby.opt_timer'), [[0, t('games.lobby.timer_off')], [60, t('games.lobby.timer_60')], [90, t('games.lobby.timer_90')]], s.turn_seconds, (v) => { s.turn_seconds = v; }),
-          seg(t('games.lobby.opt_stack'), [[-2, t('games.lobby.stack_short')], [0, t('games.lobby.stack_normal')], [2, t('games.lobby.stack_long')]], s.stack_adj, (v) => { s.stack_adj = v; }),
-          seg(t('games.lobby.opt_length'), [[0, t('games.lobby.length_one')], [100, t('games.lobby.length_match')]], s.match_to, (v) => { s.match_to = v; })));
-      const go3 = h('button', { class: 'btn btn-primary btn-big gnew-create', type: 'button' }, t('games.lobby.create'));
-      go3.addEventListener('click', () => create(go3));
-      const n = s.invite.size;
-      root.replaceChildren(...nav(t('games.lobby.new_ready')),
+          game === 'dots' ? seg(t('games.lobby.opt_table'), [[true, t('games.lobby.opt_table_simple')], [false, t('games.lobby.opt_table_free')]], state.simple_table, (value) => { state.simple_table = value; }) : null,
+          seg(t('games.lobby.opt_hints'), [[true, t('games.lobby.hints_on')], [false, t('games.lobby.hints_off')]], state.hints, (value) => { state.hints = value; }),
+          timer,
+          game === 'dots' ? seg(t('games.lobby.opt_stack'), [[-2, t('games.lobby.stack_short')], [0, t('games.lobby.stack_normal')], [2, t('games.lobby.stack_long')]], state.stack_adj, (value) => { state.stack_adj = value; }) : null,
+          game === 'dots' ? seg(t('games.lobby.opt_length'), [[0, t('games.lobby.length_one')], [100, t('games.lobby.length_match')]], state.match_to, (value) => { state.match_to = value; }) : null));
+      const ready = h('button', { class: 'btn btn-primary btn-big gnew-create', type: 'button', onclick: (ev) => create(ev.currentTarget) }, t('games.flow.ready'));
+      root.replaceChildren(...nav(t('games.flow.ready')),
         h('ul', { class: 'gsummary' },
-          cq ? h('li', null, h('span', { class: 'gsummary-k', text: t('games.cq.lobby.sum_game') }), h('span', { text: t('games.cq.name') })) : null,
-          cq ? h('li', null, h('span', { class: 'gsummary-k', text: t('games.cq.lobby.opt_variant') }), h('span', { text: variant() === 'familia' ? t('games.cq.lobby.variant_familia') : t('games.cq.lobby.variant_classic') })) : null,
-          h('li', null, h('span', { class: 'gsummary-k', text: t('games.lobby.sum_mode') }), h('span', { text: modeLabel(s.mode) })),
-          h('li', null, h('span', { class: 'gsummary-k', text: t('games.lobby.sum_invited') }),
-            h('span', { text: n ? (n === 1 ? t('games.lobby.sum_people.one') : t('games.lobby.sum_people.other', { n })) : t('games.lobby.sum_nobody') })),
+          h('li', null, h('span', { class: 'gsummary-k', text: t('games.lobby.sum_mode') }), h('span', { text: modeLabel(state.mode) })),
+          h('li', null, h('span', { class: 'gsummary-k', text: t('games.app.nickname') }), h('span', { text: state.nickname })),
           h('li', null, h('span', { class: 'gsummary-k', text: t('games.lobby.sum_claude') }),
-            h('span', { text: s.claude === 'easy' ? t('games.common.claude_easy') : s.claude === 'sharp' ? t('games.common.claude_sharp') : t('games.lobby.claude_none') })),
-          cq ? null : h('li', null, h('span', { class: 'gsummary-k', text: t('games.lobby.opt_table') }),
-            h('span', { text: simple() ? t('games.lobby.opt_table_simple') : t('games.lobby.opt_table_free') })),
-          h('li', null, h('span', { class: 'gsummary-k', text: t('games.lobby.opt_hints') }),
-            h('span', { text: s.hints ? t('games.lobby.hints_on') : t('games.lobby.hints_off') }))),
-        opts,
-        h('div', { class: 'gnew-foot' }, go3));
+            h('span', { text: state.claude === 'easy' ? t('games.common.claude_easy') : state.claude === 'sharp' ? t('games.common.claude_sharp') : t('games.lobby.claude_none') }))),
+        more, h('div', { class: 'gnew-foot' }, ready));
     }
-    if (!s.optsOpen) window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
   }
   draw();
   return root;
 }
 
-// ---- Join with a code ---------------------------------------------------------------------------
-export async function joinView(prefill) {
+export async function joinView(prefill = '', game = 'dots') {
   const boxes = [];
-  const msg = h('p', { class: 'form-msg', role: 'alert' });
-  const joinBtn = h('button', { class: 'btn btn-primary btn-big', type: 'button', disabled: true }, t('games.lobby.join_play'));
-  const watchBtn = h('button', { class: 'btn btn-quiet btn-big', type: 'button', disabled: true }, t('games.lobby.join_watch'));
-  const code = () => boxes.map((b) => b.value).join('');
-  const sync = () => { const ok = code().length === 4; joinBtn.disabled = !ok; watchBtn.disabled = !ok; };
-  const clean = (v) => v.toUpperCase().split('').filter((c) => CODE_CHARS.includes(c)).join('');
+  const message = h('p', { class: 'form-msg', role: 'alert' });
+  const preview = h('section', { class: 'gcard gjoin-preview', hidden: true });
+  const backNode = back(gameHome(game), gameName(game));
+  const nickname = h('input', { class: 'ginput', type: 'text', maxlength: 24, autocomplete: 'nickname', placeholder: t('games.app.nickname') });
+  const joinButton = h('button', { class: 'btn btn-primary btn-big', type: 'button', disabled: true }, t('games.flow.enter'));
+  const watchButton = h('button', { class: 'btn btn-quiet btn-big', type: 'button', disabled: true }, t('games.flow.watch'));
+  const code = () => boxes.map((box) => box.value).join('');
+  const clean = (value) => value.toUpperCase().split('').filter((char) => CODE_CHARS.includes(char)).join('');
+  let request = 0;
+  let previewInfo = null;
 
-  for (let i = 0; i < 4; i++) {
-    const b = h('input', { class: 'gbox', type: 'text', inputmode: 'text', maxlength: 4, autocomplete: 'off', autocapitalize: 'characters', autocorrect: 'off', spellcheck: 'false', enterkeyhint: i === 3 ? 'go' : 'next', 'aria-label': t('games.lobby.box_n', { n: i + 1 }) });
-    b.addEventListener('input', () => {
-      const raw = b.value;
-      const v = clean(raw);
-      msg.textContent = raw && !v ? t('games.lobby.code_chars') : '';
-      if (v.length > 1) { // pasted or typed fast: spread across the boxes
-        for (let k = 0; k < v.length && i + k < 4; k++) boxes[i + k].value = v[k];
-        boxes[Math.min(3, i + v.length)].focus();
-      } else {
-        b.value = v;
-        if (v && i < 3) boxes[i + 1].focus();
-      }
-      b.classList.toggle('filled', !!b.value);
-      boxes.forEach((x) => x.classList.toggle('filled', !!x.value));
-      sync();
-    });
-    b.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Backspace' && !b.value && i > 0) { boxes[i - 1].value = ''; boxes[i - 1].classList.remove('filled'); boxes[i - 1].focus(); sync(); ev.preventDefault(); }
-      if (ev.key === 'Enter' && code().length === 4) join('player');
-    });
-    b.addEventListener('focus', () => b.select());
-    boxes.push(b);
+  function sync() {
+    const ready = code().length === 4 && nickname.value.trim().length > 0;
+    joinButton.disabled = !ready;
+    watchButton.disabled = !ready;
   }
-  if (prefill) { clean(prefill).slice(0, 4).split('').forEach((c, k) => { boxes[k].value = c; boxes[k].classList.add('filled'); }); sync(); }
+
+  async function loadPreview() {
+    if (code().length !== 4) { preview.hidden = true; sync(); return; }
+    const version = ++request;
+    previewInfo = null;
+    preview.hidden = false;
+    preview.replaceChildren(h('p', { text: t('games.common.loading') }));
+    try {
+      const info = await games.code(code());
+      if (version !== request) return;
+      previewInfo = info;
+      backNode.href = gameHome(info.game);
+      backNode.querySelector('span').textContent = gameName(info.game);
+      preview.replaceChildren(
+        h('h2', { text: t('games.flow.preview') }),
+        h('p', { text: gameName(info.game) + ' · ' + modeLabel(info.mode) }),
+        h('p', { text: (info.players || []).join(', ') }),
+      );
+    } catch (error) {
+      if (version !== request) return;
+      preview.replaceChildren(h('p', { role: 'alert', text: errText(error) }));
+    }
+    sync();
+  }
 
   async function join(as) {
-    if (code().length !== 4) return;
-    joinBtn.disabled = true; watchBtn.disabled = true;
-    msg.textContent = '';
+    if (code().length !== 4 || !nickname.value.trim()) return;
+    joinButton.disabled = true;
+    watchButton.disabled = true;
+    message.textContent = '';
     try {
-      const r = await games.join(code(), as);
-      go('#/games/r/' + r.room_id);
-    } catch (e) {
-      msg.textContent = e && e.code === 'not_found' ? t('games.lobby.code_unknown') : errText(e);
-      boxRow.classList.remove('is-wrong'); void boxRow.offsetWidth; boxRow.classList.add('is-wrong');
+      const result = await games.guest(code(), nickname.value.trim(), as);
+      const info = previewInfo || await games.code(code()).catch(() => ({}));
+      saveOpened({
+        ...result,
+        room: { code: code(), status: info.status || 'lobby' },
+      }, info.game || 'dots', info.mode || 'live', nickname.value.trim(), as === 'spectator' ? 'watch' : 'player');
+      go('#/room/' + result.room_id);
+    } catch (error) {
+      message.textContent = errText(error);
       sync();
     }
   }
-  joinBtn.addEventListener('click', () => join('player'));
-  watchBtn.addEventListener('click', () => join('spectator'));
-  const boxRow = h('div', { class: 'gboxes' }, boxes);
+
+  for (let i = 0; i < 4; i++) {
+    const box = h('input', {
+      class: 'gbox', type: 'text', inputmode: 'text', maxlength: 4, autocomplete: 'off',
+      autocapitalize: 'characters', autocorrect: 'off', spellcheck: 'false',
+      'aria-label': t('games.lobby.box_n', { n: i + 1 }),
+    });
+    box.addEventListener('input', () => {
+      const value = clean(box.value);
+      if (value.length > 1) {
+        for (let k = 0; k < value.length && i + k < 4; k++) boxes[i + k].value = value[k];
+        boxes[Math.min(3, i + value.length)].focus();
+      } else {
+        box.value = value;
+        if (value && i < 3) boxes[i + 1].focus();
+      }
+      boxes.forEach((item) => item.classList.toggle('filled', !!item.value));
+      loadPreview();
+    });
+    box.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Backspace' && !box.value && i > 0) {
+        boxes[i - 1].value = '';
+        boxes[i - 1].classList.remove('filled');
+        boxes[i - 1].focus();
+        loadPreview();
+        ev.preventDefault();
+      }
+      if (ev.key === 'Enter' && code().length === 4) join('player');
+    });
+    boxes.push(box);
+  }
+
+  if (prefill) clean(prefill).slice(0, 4).split('').forEach((char, index) => {
+    boxes[index].value = char;
+    boxes[index].classList.add('filled');
+  });
+  nickname.addEventListener('input', sync);
+  joinButton.addEventListener('click', () => join('player'));
+  watchButton.addEventListener('click', () => join('spectator'));
   const root = h('section', { class: 'page gjoin' },
-    back(gameHome(hashGame()), hashGame() ? gameName(hashGame()) : t('games.common.games')),
-    head(t('games.lobby.join_title'), t('games.lobby.join_lede'), false),
-    boxRow, msg,
-    h('div', { class: 'gjoin-actions' }, joinBtn, watchBtn));
-  setTimeout(() => { const first = boxes.find((b) => !b.value) || boxes[3]; first.focus({ preventScroll: true }); }, 60);
+    backNode,
+    head(t('games.lobby.join_title'), t('games.lobby.join_lede')),
+    h('div', { class: 'gboxes' }, boxes),
+    h('label', { class: 'gopt-label' }, t('games.app.nickname'), nickname),
+    preview, message, h('div', { class: 'gjoin-actions' }, joinButton, watchButton));
+  sync();
+  if (prefill) loadPreview();
+  setTimeout(() => { const first = boxes.find((box) => !box.value) || boxes[3]; first.focus({ preventScroll: true }); }, 60);
   return root;
 }
 
-// ---- the waiting room -----------------------------------------------------------------------------
-export function mySeat(view) {
-  if (view.me && typeof view.me.seat === 'number') return view.me.seat;
-  const me = state.me;
-  if (!me) return null;
-  const st = (view.seats || []).find((s) => !s.bot && (s.player_id === me.id || (s.player_id === undefined && s.name === me.display_name)));
-  return st ? st.seat : null;
+export async function copyLink(url) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        await fallbackCopy(url);
+      }
+    } else await fallbackCopy(url);
+    toast(t('games.flow.copied'));
+  } catch {
+    toast(t('games.errors.server'), 'error');
+  }
+}
+
+async function fallbackCopy(url) {
+  const field = h('input', { value: url, readonly: true, class: 'ginput' });
+  document.body.append(field);
+  try {
+    field.select();
+    if (!document.execCommand('copy')) throw new Error('copy_failed');
+  } finally {
+    field.remove();
+  }
 }
 
 export function roomLobbyView(ctx) {
   const el = h('section', { class: 'page gwait' });
   let busy = false;
-  let picking = false;
-  let inviting = false;      // the host's "Invite players" list is open
-  let people = null;         // GET /games/people, once
-  const invited = new Set(); // invites sent from this screen
-  let seatsSeen = (ctx.getView().seats || []).length;
-  const popped = new Set();   // seats already drawn: only a newcomer pops in, not every row on every update
+  let pickingClaude = false;
+  let tvUrl = '';
+  const seenSeats = new Set();
 
-  async function op(fn, after) {
+  async function op(fn) {
     if (busy) return;
-    busy = true; draw();
-    try { await fn(); ctx.refresh && ctx.refresh(); if (after) after(); } catch (e) { toast(errText(e), 'error'); }
-    busy = false; draw();
+    busy = true;
+    draw();
+    try { await fn(); ctx.refresh?.(); } catch (error) { toast(errText(error), 'error'); }
+    busy = false;
+    draw();
+  }
+
+  async function share(url, text) {
+    try {
+      if (navigator.share) { await navigator.share({ url, text }); return; }
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+    }
+    await copyLink(url);
+  }
+
+  async function showTv(roomId) {
+    try {
+      const { url_token } = await games.tvLink(roomId);
+      tvUrl = `${location.origin}/play/#/tv/${roomId}?k=${encodeURIComponent(url_token)}`;
+    } catch (error) {
+      toast(errText(error), 'error');
+    }
+    draw();
   }
 
   function draw() {
     const view = ctx.getView();
     const room = view.room;
     const seats = view.seats || [];
-    const me = state.me || {};
-    const isHost = !ctx.scoped && room.host === me.id;
-    const mine = mySeat(view);
-    const hostSeat = seats.find((s) => s.seat === room.host_seat);
-    const humans = seats.filter((s) => !s.bot).length;
-    const canStart = seats.length >= 2;
-    const full = room.game !== 'conquian' && seats.length >= DOTS_MAX_PLAYERS;
-    if (seats.length > seatsSeen) { try { ctx.sfx && ctx.sfx.play('join'); } catch { /* no sound */ } }
-    seatsSeen = seats.length;
+    const saved = ctx.table;
+    const isHost = saved?.role === 'host';
+    const mySeat = view.me && typeof view.me.seat === 'number' ? view.me.seat : null;
+    const hostSeat = seats.find((seat) => seat.seat === room.host_seat);
+    const full = room.game !== 'conquian' && seats.length >= 8;
+    const seatRows = seats.map((seat) => {
+      const key = seat.seat + ':' + seat.name;
+      const fresh = !seenSeats.has(key);
+      seenSeats.add(key);
+      return h('li', { class: 'gwait-seat' + (seat.seat === mySeat ? ' is-me' : '') + (fresh ? ' is-new' : '') },
+        seatAvatar(seat, 'l'),
+        h('span', { class: 'grow gwait-name' },
+          h('span', { text: seat.seat === mySeat ? t('games.lobby.you_name', { name: seat.name }) : seat.name }),
+          h('span', { class: 'gwait-badges' },
+            seat.seat === room.host_seat ? h('span', { class: 'gtag gtag-host', text: t('games.lobby.host') }) : null,
+            seat.bot ? h('span', { class: 'gtag gtag-bot', text: seat.bot_level === 'easy' ? t('games.common.claude_easy') : t('games.common.claude_sharp') }) : null)),
+        isHost && seat.bot ? h('button', {
+          class: 'gwait-x', type: 'button', disabled: busy,
+          'aria-label': t('games.flow.remove_claude'),
+          onclick: () => op(() => games.seats(room.id, { op: 'remove_bot', seat: seat.seat })),
+        }, '×') : null);
+    });
 
-    const seatRows = seats.map((st) => h('li', { class: 'gwait-seat' + (st.seat === mine ? ' is-me' : '') + (popped.has(st.seat + ':' + st.name) ? '' : ' is-new') },
-      seatAvatar(st, 'l'),
-      h('span', { class: 'grow gwait-name' },
-        h('span', { text: st.seat === mine ? t('games.lobby.you_name', { name: st.name }) : st.name }),
-        h('span', { class: 'gwait-badges' },
-          st.seat === room.host_seat ? h('span', { class: 'gtag gtag-host', text: t('games.lobby.host') }) : null,
-          st.bot ? h('span', { class: 'gtag gtag-bot', text: st.bot_level === 'easy' ? t('games.common.claude_easy') : t('games.common.claude_sharp') }) : null)),
-      isHost && st.seat !== mine ? h('button', { class: 'gwait-x', type: 'button', disabled: busy, 'aria-label': t('games.lobby.remove', { name: st.name }),
-        onclick: () => op(() => games.seats(room.id, st.bot ? { op: 'remove_bot', seat: st.seat } : { op: 'kick', seat: st.seat })) }, '×') : null));
-
-    // Add Claude: an extra "seat" row under the players (host only).
-    let adder = null;
-    if (isHost && !full) {
-      adder = picking
+    const addClaude = isHost && !full
+      ? pickingClaude
         ? h('div', { class: 'gwait-pick' },
           h('p', { class: 'gwait-pick-q', text: t('games.lobby.which_claude') }),
           h('div', { class: 'gwait-pick-row' },
-            h('button', { class: 'btn btn-primary btn-big', type: 'button', disabled: busy, onclick: () => op(() => games.seats(room.id, { op: 'add_bot', level: 'easy' }), () => { picking = false; }) }, t('games.common.claude_easy')),
-            h('button', { class: 'btn btn-quiet btn-big', type: 'button', disabled: busy, onclick: () => op(() => games.seats(room.id, { op: 'add_bot', level: 'sharp' }), () => { picking = false; }) }, t('games.common.claude_sharp'))))
-        : h('button', { class: 'gwait-claude', type: 'button', disabled: busy, onclick: () => { picking = true; draw(); } },
-          h('img', { class: 'avatar avatar-l avatar-claude', src: 'games-assets/logo-mark.svg', alt: '' }), h('span', { class: 'grow', text: t('games.lobby.add_claude') }), h('span', { class: 'gwait-plus', 'aria-hidden': 'true', text: '+' }));
-    }
-
-    // Invite players (host): tap a name and the invite goes out (it shows up in their Games).
-    let inviter = null;
-    if (isHost && !full) {
-      if (!inviting) {
-        inviter = h('button', { class: 'gwait-invite', type: 'button', disabled: busy, onclick: () => {
-          inviting = true; draw();
-          if (!people) games.people().then((p) => { people = p || []; draw(); }).catch(() => { people = []; draw(); });
-        } }, h('span', { class: 'gwait-invite-ic', 'aria-hidden': 'true' }, icon('user')), h('span', { class: 'grow', text: t('games.lobby.invite_more') }), h('span', { class: 'gwait-plus', 'aria-hidden': 'true', text: '+' }));
-      } else {
-        const seated = new Set(seats.filter((x) => !x.bot).map((x) => x.name));
-        const folks = (people || []).filter((p) => p.id !== me.id && !/^claude$/i.test(p.display_name || '') && !seated.has(p.display_name));
-        inviter = h('section', { class: 'gwait-people' },
-          h('h2', { class: 'gwait-h2' }, h('span', { text: t('games.lobby.invite_more') })),
-          !people ? h('p', { class: 'gcard-empty', text: t('games.common.loading') })
-            : !folks.length ? h('p', { class: 'gcard-empty', text: t('games.lobby.people_none') })
-              : h('div', { class: 'gpeople' }, folks.map((p) => {
-                const on = invited.has(p.id);
-                return h('button', { type: 'button', class: 'gperson' + (on ? ' on' : ''), 'aria-pressed': String(on), disabled: on || busy,
-                  onclick: () => op(() => games.invite(room.id, [p.id]), () => { invited.add(p.id); toast(t('games.lobby.invite_sent')); }) },
-                avatar(p, 'm'), h('span', { class: 'grow gperson-name', text: p.display_name }),
-                h('span', { class: 'gcheck', 'aria-hidden': 'true' }, on ? '✓' : ''));
-              })));
-      }
-    }
-
-    // The room's options in plain words; the host can still flip Simple table and Hints here.
-    const st0 = room.settings || {};
-    const newbies = seats.filter((x) => !x.bot && x.first_game).map((x) => (x.seat === mine ? t('games.lobby.you') : x.name));
-    const setOpt = (k, v) => op(() => games.options(room.id, { [k]: v }));
-    const cqRoom = room.game === 'conquian';
-    const options = cqRoom ? h('section', { class: 'gwait-opts' },
+            h('button', { class: 'btn btn-primary btn-big', type: 'button', disabled: busy, onclick: () => op(() => games.seats(room.id, { op: 'add_bot', level: 'easy' })) }, t('games.common.claude_easy')),
+            h('button', { class: 'btn btn-quiet btn-big', type: 'button', disabled: busy, onclick: () => op(() => games.seats(room.id, { op: 'add_bot', level: 'sharp' })) }, t('games.common.claude_sharp')),
+            h('button', { class: 'btn btn-quiet', type: 'button', onclick: () => { pickingClaude = false; draw(); } }, t('games.common.cancel'))))
+        : h('button', { class: 'gwait-claude', type: 'button', disabled: busy, onclick: () => { pickingClaude = true; draw(); } },
+          h('img', { class: 'avatar avatar-l avatar-claude', src: 'games-assets/logo-mark.svg', alt: '' }),
+          h('span', { class: 'grow', text: t('games.lobby.add_claude') }),
+          h('span', { class: 'gwait-plus', 'aria-hidden': 'true', text: '+' }))
+      : null;
+    const settings = room.settings || {};
+    const setOption = (key, value) => op(() => games.options(room.id, { [key]: value }));
+    const options = h('section', { class: 'gwait-opts' },
       h('h2', { class: 'gwait-h2' }, h('span', { text: t('games.lobby.options_on') })),
-      optionTags(st0, 'conquian'),
+      optionTags(settings, room.game),
       isHost ? h('div', { class: 'gwait-opts-edit' },
-        seg(t('games.cq.lobby.opt_variant'), [['classic', t('games.cq.lobby.variant_classic')], ['familia', t('games.cq.lobby.variant_familia')]], st0.variant || (seats.length > 2 ? 'familia' : 'classic'), (v) => setOpt('variant', v)),
-        seg(t('games.lobby.opt_hints'), [[true, t('games.lobby.hints_on')], [false, t('games.lobby.hints_off')]], st0.hints !== false, (v) => setOpt('hints', v))) : null,
-      st0.variant === 'classic' && seats.length > 2 ? h('p', { class: 'gwait-hint gwait-newbie', text: t('games.cq.lobby.classic_two') }) : null,
-      h('button', { class: 'btn btn-quiet gpractice-rules', type: 'button', onclick: () => openRules('conquian') }, t('games.cq.lobby.how'))) : h('section', { class: 'gwait-opts' },
-      h('h2', { class: 'gwait-h2' }, h('span', { text: t('games.lobby.options_on') })),
-      optionTags(st0),
-      isHost ? h('div', { class: 'gwait-opts-edit' },
-        seg(t('games.lobby.opt_table'), [[true, t('games.lobby.opt_table_simple')], [false, t('games.lobby.opt_table_free')]], !!st0.simple_table, (v) => setOpt('simple_table', v)),
-        seg(t('games.lobby.opt_hints'), [[true, t('games.lobby.hints_on')], [false, t('games.lobby.hints_off')]], st0.hints !== false, (v) => setOpt('hints', v))) : null,
-      newbies.length && !st0.simple_table ? h('p', { class: 'gwait-hint gwait-newbie', text: t('games.lobby.first_game_note', { names: newbies.join(', ') }) }) : null);
+        room.game === 'dots' ? seg(t('games.lobby.opt_table'), [[true, t('games.lobby.opt_table_simple')], [false, t('games.lobby.opt_table_free')]], !!settings.simple_table, (value) => setOption('simple_table', value)) : null,
+        seg(t('games.lobby.opt_hints'), [[true, t('games.lobby.hints_on')], [false, t('games.lobby.hints_off')]], settings.hints !== false, (value) => setOption('hints', value))) : null);
+    const tvControls = room.mode === 'together' && isHost
+      ? h('section', { class: 'gwait-tv-controls' },
+        h('button', { class: 'btn btn-primary btn-big', type: 'button', disabled: busy, onclick: () => showTv(room.id) }, t('games.flow.show_tv')),
+        tvUrl ? h('div', { class: 'gflow-link' },
+          h('label', { class: 'gopt-label' }, t('games.flow.tv_link'), h('input', { class: 'ginput', value: tvUrl, readonly: true })),
+          h('a', { href: tvUrl, target: '_blank', rel: 'noopener noreferrer' }, t('games.flow.open_tv_link')),
+          h('button', { class: 'btn btn-quiet', type: 'button', onclick: () => copyLink(tvUrl) }, t('games.flow.copy_link'))) : null)
+      : null;
+    const shareUrl = `${location.origin}/play/#/j/${room.code}`;
+    const hostControls = isHost ? h('section', { class: 'gwait-host-controls' },
+      seg(t('games.app.guests'), [[true, t('games.app.on')], [false, t('games.app.off')]], settings.guests !== false, (value) => setOption('guests', value)),
+      addClaude,
+      h('button', { class: 'btn btn-quiet btn-big', type: 'button', onclick: () => share(shareUrl, t('games.flow.share_text', { code: room.code })) }, t('games.flow.share_link'))) : null;
+    const canStart = seats.length >= 2;
+    const footer = isHost
+      ? h('div', { class: 'gwait-foot' },
+        h('button', { class: 'btn btn-primary btn-big gwait-start', type: 'button', disabled: busy || !canStart, onclick: () => op(() => games.start(room.id)) }, t('games.lobby.start')),
+        !canStart ? h('p', { class: 'gwait-hint', text: t('games.lobby.need_two') }) : null)
+      : h('p', { class: 'gwait-waiting' }, h('span', { text: t('games.lobby.waiting_host', { name: hostSeat?.name || '' }) }));
 
-    // The sticky footer: Start (host), Sit down (watcher), or "waiting for the host".
-    const foot = [];
-    if (isHost) {
-      foot.push(h('button', { class: 'btn btn-primary btn-big gwait-start', type: 'button', disabled: busy || !canStart,
-        onclick: () => op(() => games.start(room.id)) }, t('games.lobby.start')));
-      if (!canStart) foot.push(h('p', { class: 'gwait-hint', text: t('games.lobby.need_two') }));
-    } else if (mine == null) {
-      foot.push(h('button', { class: 'btn btn-primary btn-big', type: 'button', disabled: busy || full, onclick: () => op(() => games.seats(room.id, { op: 'sit' })) }, t('games.lobby.sit')));
-      if (full) foot.push(h('p', { class: 'gwait-hint', text: t('games.api.room_full') }));
-      foot.push(h('p', { class: 'gwait-hint', text: t('games.lobby.watching') }));
-    } else {
-      foot.push(h('p', { class: 'gwait-waiting' }, h('span', { text: t('games.lobby.waiting_host', { name: hostSeat ? hostSeat.name : '' }) }),
-        h('span', { class: 'dots', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'))));
-    }
-
-    el.replaceChildren(...[   // (replaceChildren would print a null as the text "null")
+    el.replaceChildren(
       h('div', { class: 'gwait-top' },
         room.game === 'conquian' ? h('span', { class: 'gtag gtag-game', text: t('games.cq.name') }) : null,
-        h('span', { class: 'gtag gtag-mode gtag-' + room.mode, text: modeLabel(room.mode) }),
-        h('a', { class: 'gwait-tv', href: '#/games/tv/' + room.id }, t('games.lobby.show_tv'))),
-      isHost ? h('div', {class:'row'},
-        seg(t('games.app.guests'), [[true,t('games.app.on')],[false,t('games.app.off')]], room.settings.guests !== false, v => op(()=>games.options(room.id,{guests:v}))),
-        h('button',{type:'button',class:'btn',onclick:async()=>{
-          const text=t('games.app.share_text',{code:room.code});
-          try { if(navigator.share) await navigator.share({text}); else {await navigator.clipboard.writeText(text);toast(t('games.app.copied'));} } catch(e) { if(e.name!=='AbortError') toast(t('games.errors.server'),'error'); }
-        }},t('games.app.share'))) : null,
+        h('span', { class: 'gtag gtag-mode gtag-' + room.mode, text: modeLabel(room.mode) })),
+      ...[tvControls, hostControls].filter(Boolean),
       h('h1', { class: 'gwait-title', text: t('games.lobby.wait_title') }),
       h('div', { class: 'gwait-code' },
         h('p', { class: 'gwait-code-k', text: t('games.lobby.code_label') }),
-        h('div', { class: 'gcode gcode-xl', role: 'img', 'aria-label': t('games.common.code_aria', { code: room.code.split('').join(' ') }) },
-          room.code.split('').map((c) => h('span', { class: 'gcode-ch', text: c }))),
+        h('div', { class: 'gcode gcode-xl', role: 'img', 'aria-label': t('games.common.code_aria', { code: (room.code || '').split('').join(' ') }) },
+          (room.code || '').split('').map((char) => h('span', { class: 'gcode-ch', text: char }))),
         h('p', { class: 'gwait-code-hint', text: t('games.lobby.code_hint') })),
       h('h2', { class: 'gwait-h2' }, h('span', { text: t('games.lobby.players') }), h('span', { class: 'gcount', text: String(seats.length) })),
       h('ul', { class: 'gwait-seats' }, seatRows),
-      adder,
-      inviter,
-      options,
-      humans < 2 && !seats.some((s) => s.bot) ? h('p', { class: 'gwait-hint gwait-alone', text: t('games.lobby.alone') }) : null,
-      mine != null && !isHost ? h('button', { class: 'btn btn-quiet gwait-leave', type: 'button', disabled: busy, onclick: () => op(() => games.seats(room.id, { op: 'leave' })) }, t('games.lobby.leave')) : null,
-      h('div', { class: 'gwait-foot' }, foot)].filter(Boolean));
-    for (const st of seats) popped.add(st.seat + ':' + st.name);
+      options, footer);
   }
   draw();
   return { el, update: draw };
+}
+
+export async function transferView(token) {
+  const root = h('section', { class: 'page gjoin' }, h('p', { class: 'gcard-empty', text: t('games.common.loading') }));
+  try {
+    const result = await games.acceptTransfer(decodeURIComponent(token));
+    const view = await games.room(result.room_id, null, false, result.token);
+    const nickname = view.me?.seat == null ? '' : view.seats?.find((seat) => seat.seat === view.me.seat)?.name || '';
+    saveOpened({ ...result, room: view.room }, view.room.game, view.room.mode, nickname, result.role || 'player');
+    go('#/room/' + result.room_id);
+  } catch (error) {
+    // A used or expired seat link reads as an expired link, not as a missing page.
+    const text = error && (error.code === 'not_found' || error.status === 404) ? t('games.errors.unauthorized') : errText(error);
+    root.replaceChildren(h('p', { role: 'alert', text }), back('#/puntos', t('games.common.game_name')));
+  }
+  return root;
 }

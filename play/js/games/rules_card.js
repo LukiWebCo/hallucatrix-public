@@ -1,15 +1,14 @@
 // The one-screen rules (contracts/games.md §1), behind every "?" and before the first game.
-import { h, icon } from '../dom.js?v=18426296defe';
-import { currentLang, t } from '../i18n.js?v=18426296defe';
-import { inline, render } from '../md.js?v=18426296defe';
-import { bellIcon, dotArt } from './market.js?v=18426296defe';
+import { h, icon } from '../dom.js?v=1bb003a1a4fc';
+import { currentLang, t } from '../i18n.js?v=1bb003a1a4fc';
+import { inline, render } from '../md.js?v=1bb003a1a4fc';
+import { bellIcon, dotArt } from './market.js?v=1bb003a1a4fc';
+import { migrateStorageKey } from '../storage.js?v=1bb003a1a4fc';
 
-const SEEN = 'eai.games.rules_seen';
-// howto-dots-v1 teaches the retired rules. Enable only after a table-edition film replaces it.
-const TABLE_EDITION_FILM_READY = false;
+const SEEN = 'hxg.games.rules_seen';
 
 export function rulesSeen() {
-  try { return localStorage.getItem(SEEN) === '1'; } catch { return true; }
+  return migrateStorageKey('local', 'eai.games.rules_seen', SEEN, '1') === '1';
 }
 
 function markSeen() {
@@ -46,10 +45,6 @@ export function rulesBody() {
       h('p', { class: 'grules-stuck' }, inline(t('games.rules.stuck')))));
 }
 
-export function gameHowtoSource() { return null; }
-export function openGameHowto() { return null; }
-export function watchButton() { return null; }
-
 async function openFullRules() {
   const lang = currentLang();
   const dialog = h('dialog', { class: 'sheet grules-full', 'aria-labelledby': 'grules-full-title' });
@@ -75,7 +70,20 @@ async function openFullRules() {
     if (!response.ok) throw new Error(`Rules request failed (${response.status})`);
     const markdown = await response.text();
     if (!dialog.isConnected) return dialog;
-    body.replaceChildren(...(note ? [h('p', { class: 'card note', text: t('games.rules.full_note') })] : []), render(markdown));
+    const rules = render(markdown);
+    const heading = [...rules.querySelectorAll('h2, h3, h4')].find((node) => ['Las Rayas', 'Lines'].includes(node.textContent.trim()));
+    if (heading) {
+      for (let node = heading.nextElementSibling; node && !/^H[1-6]$/.test(node.tagName); node = node.nextElementSibling) {
+        if (node.tagName !== 'BLOCKQUOTE') continue;
+        const exampleLine = [...node.children].find((child) => child.tagName === 'P' && /^(Ejemplo|Example):/.test(child.textContent.trim()));
+        if (!exampleLine) continue;
+        const cards = /Cielo|Sky/.test(exampleLine.textContent)
+          ? [{ c: 'b', n: 4 }, { c: 'b', n: 5 }, { c: 'b', n: 6 }]
+          : [{ c: 'r', n: 8 }, { c: 'g', n: 8 }, { c: 'p', n: 8 }];
+        node.append(h('div', { class: 'gx-line gx-md-example', 'aria-hidden': 'true' }, cards.map((d) => dotArt(d, 's'))));
+      }
+    }
+    body.replaceChildren(...(note ? [h('p', { class: 'card note', text: t('games.rules.full_note') })] : []), rules);
   } catch {
     if (!dialog.isConnected) return dialog;
     body.replaceChildren(h('p', { role: 'alert', text: t('games.rules.full_error') }));
@@ -85,21 +93,20 @@ async function openFullRules() {
 
 // Opens the rules sheet (Dots, or Conquián's own card). Resolves when closed.
 export function openRules(game) {
-  if (game === 'conquian') return import('./conquian/rules.js?v=18426296defe').then((m) => m.openCqRules());
+  if (game === 'conquian') return import('./conquian/rules.js?v=1bb003a1a4fc').then((m) => m.openCqRules());
   return new Promise((resolve) => {
     const dlg = h('dialog', { class: 'sheet grules-sheet', 'aria-labelledby': 'grules-title' });
     const done = () => { markSeen(); dlg.close(); dlg.remove(); resolve(); };
-    dlg.append(...[   // (append would print a null — no how-to film yet — as the text "null")
+    dlg.append(
       h('div', { class: 'grules-top' },
         h('div', null,
           h('p', { class: 'eyebrow', text: t('games.rules.eyebrow') }),
           h('h2', { id: 'grules-title', class: 'grules-title', text: t('games.common.game_name') })),
         h('button', { class: 'icon-btn grules-x', type: 'button', 'aria-label': t('games.common.close'), onclick: done }, '×')),
       rulesBody(),
-      watchButton(),
       h('div', { class: 'grules-actions' },
         h('button', { class: 'btn btn-quiet btn-big', type: 'button', 'data-test': 'full-rules', onclick: () => openFullRules() }, t('games.rules.full')),
-        h('button', { class: 'btn btn-primary btn-big grules-ok', type: 'button', onclick: done }, t('games.rules.got_it')))].filter(Boolean));
+        h('button', { class: 'btn btn-primary btn-big grules-ok', type: 'button', onclick: done }, t('games.rules.got_it'))));
     dlg.addEventListener('cancel', (ev) => { ev.preventDefault(); done(); });
     dlg.addEventListener('click', (ev) => { if (ev.target === dlg) done(); });
     document.body.append(dlg);

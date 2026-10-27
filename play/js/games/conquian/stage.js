@@ -11,7 +11,7 @@
 //   action()       {type:'take', melds}
 // Rules mirrored from contracts/conquian.md §4 "Take": every meld classifies, the center card is in it, every
 // card already on your table is still in it, the rest comes from your hand, no id twice.
-import { classify, why as whyOf, sortMeld } from './melds.js?v=18426296defe';
+import { classify, why as whyOf, sortMeld } from './melds.js?v=1bb003a1a4fc';
 
 export class Take {
   constructor(view) {

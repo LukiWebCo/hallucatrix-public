@@ -1,6 +1,6 @@
 // Shared app state and small UI pieces: toasts, confirm dialog, errors, buttons.
-import { h, icon } from './dom.js?v=18426296defe';
-import { t } from './i18n.js?v=18426296defe';
+import { h, icon } from './dom.js?v=1bb003a1a4fc';
+import { t } from './i18n.js?v=1bb003a1a4fc';
 
 export const state = { me: null, rerender: null };
 

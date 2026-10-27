@@ -8,7 +8,7 @@
 //   takeKind(view, layout) -> 'out' | 'fits' | 'new_meld' | 'rearrange'
 //   loosest(view)   -> id | null        the card Sharp Claude would throw (or pass in the Cambio)
 //   takes(table, hand, center, {cap, first}) / anyTake / simpleTake / fitsAny / scoreLayout
-import { SUITS, RANKS, fits as fitsMeld } from './melds.js?v=18426296defe';
+import { SUITS, RANKS, fits as fitsMeld } from './melds.js?v=1bb003a1a4fc';
 
 export const SEARCH_CAP = 600;   // params.SEARCH_CAP
 const IDX = new Map(RANKS.map((r, i) => [r, i]));

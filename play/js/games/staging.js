@@ -269,7 +269,7 @@ export class Staging {
     return a;
   }
 
-  // ---- persistence (sessionStorage "eai.games.<room>:<v>", dropped when the version moves) -----------------
+  // ---- persistence (sessionStorage "hxg.games.<room>:<v>", dropped when the version moves) -----------------
   snapshot() {
     return {
       v: this.view.v, seq: this.seq,

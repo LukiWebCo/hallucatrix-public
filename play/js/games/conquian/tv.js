@@ -1,13 +1,13 @@
-// Conquián on the TV (#/games/tv/:id): the table only, never a hand. The TV is everyone's screen, so it stays
+// Conquián on the TV (#/tv/:id): the table only, never a hand. The TV is everyone's screen, so it stays
 // the pile and the dead pile, then one panel per player (cards in hand as a count, their melds face up), whose
 // move it is, the join code, and the latest event. Readable from the couch at 1280x720 and 1920x1080.
-import { h } from '../../dom.js?v=18426296defe';
-import { t } from '../../i18n.js?v=18426296defe';
-import { backPile, cardName, cardNode, hasArt, logo, meldNode, probeArt } from './cards.js?v=18426296defe';
-import { cardSound } from './sound.js?v=18426296defe';
-import { newsLine } from './text.js?v=18426296defe';
-import { phaseOf } from './view.js?v=18426296defe';
-import { cardBurst, stamp } from './fx.js?v=18426296defe';
+import { h } from '../../dom.js?v=1bb003a1a4fc';
+import { t } from '../../i18n.js?v=1bb003a1a4fc';
+import { backPile, cardName, cardNode, hasArt, logo, meldNode, probeArt } from './cards.js?v=1bb003a1a4fc';
+import { cardSound } from './sound.js?v=1bb003a1a4fc';
+import { newsLine } from './text.js?v=1bb003a1a4fc';
+import { phaseOf } from './view.js?v=1bb003a1a4fc';
+import { cardBurst, stamp } from './fx.js?v=1bb003a1a4fc';
 
 function nameOf(v, s) { const st = (v.seats || []).find((x) => x.seat === s); return st ? st.name : '?'; }
 

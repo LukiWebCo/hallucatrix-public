@@ -6,8 +6,9 @@
 //
 //   coach.say()      -> {kicker, text, ok, okLabel} | {kicker} | null      (the play screen renders it)
 //   coach.next() · coach.finish() · coach.onView(view, prev) · coach.decorate(root)
-import { t } from '../../i18n.js?v=18426296defe';
-import { deciding, discarding } from './view.js?v=18426296defe';
+import { t } from '../../i18n.js?v=1bb003a1a4fc';
+import { deciding, discarding } from './view.js?v=1bb003a1a4fc';
+import { migrateStorageKey } from '../../storage.js?v=1bb003a1a4fc';
 
 const STEPS = ['hand', 'middle', 'take', 'throw', 'pass', 'win'];
 
@@ -25,14 +26,12 @@ function title(s) {
 export class CqCoach {
   constructor(screen, roomId) {
     this.screen = screen;
-    this.key = `eai.games.cq.coach.${roomId}`;
+    this.key = `hxg.games.cq.coach.${roomId}`;
     this.i = 0;
     this.done = false;
-    try {
-      const saved = localStorage.getItem(this.key);
-      if (saved === 'done') this.done = true;
-      else if (saved && /^[0-5]$/.test(saved)) this.i = Number(saved);
-    } catch { /* start at the top */ }
+    const saved = migrateStorageKey('local', `eai.games.cq.coach.${roomId}`, this.key);
+    if (saved === 'done') this.done = true;
+    else if (saved && /^[0-5]$/.test(saved)) this.i = Number(saved);
   }
 
   get step() { return this.done ? null : STEPS[this.i]; }

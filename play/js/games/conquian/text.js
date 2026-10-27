@@ -1,8 +1,8 @@
 // Conquián words that come from the server as codes: events (contracts/conquian.md §7), errors (§8), and the
 // reasons a meld you're building isn't one yet. Every key is written out literally so
 // tests/test_i18n.py can see it.
-import { t } from '../../i18n.js?v=18426296defe';
-import { faceName } from './cards.js?v=18426296defe';
+import { t } from '../../i18n.js?v=1bb003a1a4fc';
+import { faceName } from './cards.js?v=1bb003a1a4fc';
 
 // One event as a plain sentence ('' if we don't know it).
 export function evText(ev) {

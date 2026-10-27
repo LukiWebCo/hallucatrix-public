@@ -1,13 +1,13 @@
-import { styles } from '../styles.js?v=18426296defe';
-// The TV / table screen (#/games/tv/:id): no chrome, readable from the couch, 1280x720 and 1920x1080.
+import { styles } from '../styles.js?v=1bb003a1a4fc';
+// The TV / table screen (#/tv/:id): no chrome, readable from the couch, 1280x720 and 1920x1080.
 // Table lines in columns, giant Stack-top chips per seat, whose turn, the join code in the corner,
 // and a full takeover when the MARKET opens ("Two! · Ana").
-import { h } from '../dom.js?v=18426296defe';
-import { t } from '../i18n.js?v=18426296defe';
-import { countWord, dotArt, marketBanner, ring, seatAvatar, seatName, serverClock, ticker } from './market.js?v=18426296defe';
-import { stackLabel, stackText } from './dots.js?v=18426296defe';
-import { liveBanner, draftMarks, changeMarks } from './live_table.js?v=18426296defe';
-import { openLastTurn } from './last_turn.js?v=18426296defe';
+import { h } from '../dom.js?v=1bb003a1a4fc';
+import { t } from '../i18n.js?v=1bb003a1a4fc';
+import { countWord, dotArt, marketBanner, ring, seatAvatar, seatName, serverClock, ticker } from './market.js?v=1bb003a1a4fc';
+import { stackLabel, stackText } from './dots.js?v=1bb003a1a4fc';
+import { liveBanner, draftMarks, changeMarks } from './live_table.js?v=1bb003a1a4fc';
+import { openLastTurn } from './last_turn.js?v=1bb003a1a4fc';
 
 // W5's wordmark: real text in three parts so it translates ("Dots & Lines" / "Puntos y Rayas").
 export function wordmark(cls = '') {
@@ -18,6 +18,7 @@ export function wordmark(cls = '') {
 }
 
 export function modeLabel(mode) {
+  if (mode === 'practice') return t('games.flow.mode_practice');
   return { together: t('games.common.mode_together'), live: t('games.common.mode_live'), leisure: t('games.common.mode_leisure') }[mode] || '';
 }
 

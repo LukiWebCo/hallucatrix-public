@@ -1,6 +1,6 @@
 // Dots & Lines sound + haptics (W5). Sounds are ours: synthesized by tools/games_assets.py, CC0.
 //
-//   import { createSfx } from './sfx.js?v=18426296defe';
+//   import { createSfx } from './sfx.js?v=1bb003a1a4fc';
 //   const sfx = createSfx({ screen: 'phone' });   // or { screen: 'tv' }
 //   sfx.play('snap');  sfx.setMuted(true);  sfx.muted;  sfx.music(true);
 //
@@ -10,11 +10,13 @@
 // - Phone, no stored choice: QUIET. Only the "your turn" chime sounds (plus haptics), so a room of 12 phones isn't
 //   a slot machine. `muted` reads true. setMuted(false) turns every sound on; setMuted(true) silences everything.
 // - TV, no stored choice: ON. The TV is the table's speaker: the bell, the ticks, the win.
-// - The choice is stored per screen kind: localStorage 'eai.games.muted' (phones) / 'eai.games.muted.tv' (TV),
+// - The choice is stored per screen kind: localStorage 'hxg.games.muted' (phones) / 'hxg.games.muted.tv' (TV),
 //   '1' = muted, '0' = sound on.
 // Web Audio first (fetch + decodeAudioData: covered by connect-src 'self'); if that fails, an HTMLAudio element on a
 // same-origin URL. Audio unlocks on the first tap/key (iOS needs a gesture). Every call is a
 // no-op when anything is missing: no AudioContext, no network, no localStorage, no vibrate.
+
+import { migrateStorageKey } from '../storage.js?v=1bb003a1a4fc';
 
 const BASE = new URL('../../games-assets/', import.meta.url);
 export const SOUNDS = ['place', 'snap', 'invalid', 'flip', 'clear', 'your_turn', 'win', 'bell', 'trade', 'tick', 'join'];
@@ -36,8 +38,8 @@ function store(key, v) {
 
 export function createSfx({ screen = 'phone', base = BASE } = {}) {
   const tv = screen === 'tv';
-  const key = tv ? 'eai.games.muted.tv' : 'eai.games.muted';
-  const saved = store(key);
+  const key = tv ? 'hxg.games.muted.tv' : 'hxg.games.muted';
+  const saved = migrateStorageKey('local', tv ? 'eai.games.muted.tv' : 'eai.games.muted', key);
   // mode: 'on' | 'quiet' | 'off'
   let mode = saved === '1' ? 'off' : saved === '0' ? 'on' : (tv ? 'on' : 'quiet');
   let ctx = null;

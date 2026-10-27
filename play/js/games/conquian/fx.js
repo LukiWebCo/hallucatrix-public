@@ -1,7 +1,7 @@
-import { styles } from '../../styles.js?v=18426296defe';
-import { h } from '../../dom.js?v=18426296defe';
-import { t } from '../../i18n.js?v=18426296defe';
-import { artUrl, hasArt, suitIcon } from './cards.js?v=18426296defe';
+import { styles } from '../../styles.js?v=1bb003a1a4fc';
+import { h } from '../../dom.js?v=1bb003a1a4fc';
+import { t } from '../../i18n.js?v=1bb003a1a4fc';
+import { artUrl, hasArt, suitIcon } from './cards.js?v=1bb003a1a4fc';
 
 const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = (ms) => new Promise((r) => setTimeout(r, reduced() ? 0 : ms));

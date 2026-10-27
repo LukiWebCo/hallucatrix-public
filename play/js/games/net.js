@@ -116,32 +116,46 @@ export function createPoller(deps, startV = -1) {
 }
 
 // ---- REST (browser only) ---------------------------------------------------------------------------
-async function apiMod() { return import('../api.js?v=18426296defe'); }
+async function apiMod() { return import('../api.js?v=1bb003a1a4fc'); }
 
-// GET with an AbortSignal (api.js has none). 401 is handed to api.js so its sign-out handler runs.
-async function decorate(view) {
-  if (view?.seats) {
-    const {t} = await import('../i18n.js?v=18426296defe');
-    for (const seat of view.seats) if (seat.guest) seat.name += ' (' + t('games.app.guest') + ')';
-  }
-  return view;
+async function getSignal(path, signal, token) {
+  return (await apiMod()).get(path, { signal, token });
 }
-async function getSignal(path, signal) { return decorate(await (await apiMod()).get(path, {signal})); }
 
 export const games = {
-  async rooms() { const data = await (await apiMod()).get('/api/games/rooms'); for (const kind of ['mine','open','invites']) for (const room of data[kind] || []) await decorate(room); return data; },
-  async people() { return (await apiMod()).get('/api/games/people'); },
-  async create(mode, settings, game = 'dots') { return (await apiMod()).post('/api/games/rooms', { mode, game, settings }); },
-  async join(code, as = 'player') { return (await apiMod()).post('/api/games/join', { code, as }); },
-  async room(id, signal, spectator = false) { const path = `/api/games/rooms/${id}${spectator ? "?as=spectator" : ""}`; return signal ? getSignal(path, signal) : getSignal(path); },
-  wait(id, v, signal, seq = -1, spectator = false) { return getSignal(`/api/games/rooms/${id}/wait?v=${v}${spectator ? "&as=spectator" : ""}${seq >= 0 ? `&draft_seq=${seq}` : ""}`, signal); },
+  async tableOpen(mode, game, nickname, bots, settings) {
+    return (await apiMod()).post('/api/games/table/open', { mode, game, nickname, bots, settings }, { auth: false });
+  },
+  async guest(code, nickname, as = 'player') {
+    return (await apiMod()).post('/api/games/guest', { code, nickname, ...(as === 'spectator' ? { as } : {}) }, { auth: false });
+  },
+  async code(code) { return (await apiMod()).get(`/api/games/code/${encodeURIComponent(code)}`, { auth: false }); },
+  async room(id, signal, spectator = false, token = null) {
+    const path = `/api/games/rooms/${id}${spectator ? '?as=spectator' : ''}`;
+    return getSignal(path, signal, token);
+  },
+  wait(id, v, signal, seq = -1, spectator = false, token = null) {
+    return getSignal(`/api/games/rooms/${id}/wait?v=${v}${spectator ? '&as=spectator' : ''}${seq >= 0 ? `&draft_seq=${seq}` : ''}`, signal, token);
+  },
   async draft(id, lines, v) { return (await apiMod()).post(`/api/games/rooms/${id}/draft`, { lines, v }); },
-  async invite(id, memberIds) { return (await apiMod()).post(`/api/games/rooms/${id}/invite`, { player_ids: memberIds }); },
   async seats(id, body) { return (await apiMod()).post(`/api/games/rooms/${id}/seats`, body); },
   async start(id) { return (await apiMod()).post(`/api/games/rooms/${id}/start`, {}); },
   async hint(id) { return (await apiMod()).get(`/api/games/rooms/${id}/hint`); },
-  async practice(game) { return (await apiMod()).post('/api/games/practice', game && game !== 'dots' ? { game } : {}); },
+  async practice(game = 'dots') {
+    return (await apiMod()).post('/api/games/practice/open', { game }, { auth: false });
+  },
   async options(id, body) { return (await apiMod()).post(`/api/games/rooms/${id}/options`, body); },
+  async tvLink(id) { return (await apiMod()).post(`/api/games/rooms/${id}/tv-link`, {}); },
+  async transfer(id) { return (await apiMod()).post(`/api/games/rooms/${id}/transfer`, {}); },
+  async acceptTransfer(transfer_token) {
+    return (await apiMod()).post('/api/games/transfer', { transfer_token }, { auth: false });
+  },
+  async push(id, subscription, lang) {
+    return (await apiMod()).post(`/api/games/rooms/${id}/push`, { subscription, lang });
+  },
+  async removePush(id, endpoint) {
+    return (await apiMod()).api('DELETE', `/api/games/rooms/${id}/push`, { endpoint });
+  },
   // One action. A network failure is retried once with the same cid (the server makes a repeat harmless).
   async act(id, action) {
     const { post } = await apiMod();

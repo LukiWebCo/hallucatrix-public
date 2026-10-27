@@ -12,11 +12,6 @@
 }
 .gp button { -webkit-tap-highlight-color: transparent; }
 
-/* The app's bottom tabs give way to the game tray while you play. */
-body.games-play .tabs { display: none; }
-body.games-play .view { padding-bottom: var(--eai-space-4); }
-body.games-play .toast { bottom: calc(240px + env(safe-area-inset-bottom)); }
-
 /* ---- top strip --------------------------------------------------------------------------------------------- */
 .gp-strip { display: flex; flex-direction: column; gap: var(--eai-space-2); margin: 0 0 var(--eai-space-3); }
 .gp-strip-row { display: flex; align-items: center; gap: var(--eai-space-2); }
@@ -146,8 +141,6 @@ button.gm-dot:focus-visible { outline: 3px solid var(--eai-color-focus); outline
   box-shadow: 0 0 0 4px color-mix(in oklab, var(--gm-hint, var(--eai-color-accent-2)) 25%, transparent); }
 .gp-hint .icon { width: 22px; height: 22px; }
 .gp-hand { display: flex; flex-wrap: wrap; gap: 22px 6px; padding: 8px 0 6px; }
-.gp-hand-head { flex: 1 0 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
-.gp-hand-label { color: var(--eai-color-ink-muted); font: 700 var(--eai-step--1)/1.2 var(--eai-font-mono); text-transform: uppercase; letter-spacing: .06em; }
 .gp-collapse-btn { position: absolute; top: -40px; right: max(12px, env(safe-area-inset-right)); display: inline-flex; align-items: center; gap: 6px;
   min-height: 48px; padding: 0 14px; border-radius: 999px; cursor: pointer; color: var(--eai-color-ink);
   background: #102a20; border: 1px solid color-mix(in oklab, var(--eai-color-ink) 30%, transparent);

@@ -1,13 +1,13 @@
-import { styles } from '../../styles.js?v=18426296defe';
+import { styles } from '../../styles.js?v=1bb003a1a4fc';
 // Conquián cards on screen: W2's SVG art (games-assets/conquian/, contracts/conquian.md §11) when it's there,
 // and a card drawn in CSS (rank + a small suit drawn here) when it isn't, so the game plays either way.
 //
 //   cardNode(card, {size:'s'|'m'|'l'|'xl', tag:'button'|'span', back, cls, label, onclick, attrs})
 //   cardName(card) -> "7 of Cups" / "7 de Copas"        suitName(s)        faceName('c7')
 //   probeArt() -> Promise<bool>   (fetches cards.json once; until it says yes we draw cards ourselves)
-import { h } from '../../dom.js?v=18426296defe';
-import { t } from '../../i18n.js?v=18426296defe';
-import { face } from './melds.js?v=18426296defe';
+import { h } from '../../dom.js?v=1bb003a1a4fc';
+import { t } from '../../i18n.js?v=1bb003a1a4fc';
+import { face } from './melds.js?v=1bb003a1a4fc';
 
 export const ART = 'games-assets/conquian/';
 let art = false;

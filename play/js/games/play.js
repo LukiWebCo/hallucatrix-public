@@ -1,7 +1,8 @@
-import { styles } from '../styles.js?v=18426296defe';
-// Dots & Lines: the phone play screen (#/games/r/:id). contracts/games.md §1, §6, §7; GAMES-PLAN.md C "Phone play".
+import { styles } from '../styles.js?v=1bb003a1a4fc';
+import { table as savedTable } from '../tables.js?v=1bb003a1a4fc';
+// Dots & Lines: the phone play screen (#/room/:id). contracts/games.md §1, §6, §7.
 //
-//   import { playView } from './play.js?v=18426296defe';
+//   import { playView } from './play.js?v=1bb003a1a4fc';
 //   const stop = await playView(root, ctx);   // fills `root`; call stop() (or remove root) to tear down
 //
 // ctx (from index.js, W3a):
@@ -11,7 +12,7 @@ import { styles } from '../styles.js?v=18426296defe';
 //                        play.js sets action.cid itself (a retry of the same action reuses it).
 //   onView(cb)        -> subscribe to new views (cb(view)); may return an unsubscribe function
 //   sfx?              {play(name)}: 'snap'|'place'|'invalid'|'flip'|'clear'|'your_turn'|'win' (W5's sfx.js)
-//   openMarket?()     shows the Market sheet;  openRules?() shows the one-screen rules;  backHash? ('#/games')
+//   openMarket?()     shows the Market sheet;  openRules?() shows the one-screen rules;  backHash? ('#/puntos')
 //   hideBack?         true when the room bar above already has the way back (index.js)
 //   reclaim?()        take the seat back from Claude after missed turns (the "I'm back!" banner)
 //   hint?()           -> Promise<{v, hint}>: the Smart Hint (GET /hint, read-only); the lamp walks you through it
@@ -19,15 +20,16 @@ import { styles } from '../styles.js?v=18426296defe';
 // Rendering is a full rebuild with h() on every change (cheap at this size); animation classes are added only to
 // the elements that just changed, so nothing replays. Motion lives in games-play.css under
 // prefers-reduced-motion: no-preference.
-import { h, icon, clear } from '../dom.js?v=18426296defe';
-import { currentLang, t } from '../i18n.js?v=18426296defe';
-import * as Lines from './lines.js?v=18426296defe';
-import { Staging } from './staging.js?v=18426296defe';
-import { applyArt, dotName, dotNode, stackLabel, stackText } from './dots.js?v=18426296defe';
-import { Coach } from './coach.js?v=18426296defe';
-import { games } from './net.js?v=18426296defe';
-import { liveBanner, draftMarks, changeMarks } from './live_table.js?v=18426296defe';
-import { openLastTurn } from './last_turn.js?v=18426296defe';
+import { h, icon, clear } from '../dom.js?v=1bb003a1a4fc';
+import { currentLang, t } from '../i18n.js?v=1bb003a1a4fc';
+import * as Lines from './lines.js?v=1bb003a1a4fc';
+import { Staging } from './staging.js?v=1bb003a1a4fc';
+import { applyArt, dotName, dotNode, stackLabel, stackText } from './dots.js?v=1bb003a1a4fc';
+import { Coach } from './coach.js?v=1bb003a1a4fc';
+import { games } from './net.js?v=1bb003a1a4fc';
+import { migrateStorageKey } from '../storage.js?v=1bb003a1a4fc';
+import { liveBanner, draftMarks, changeMarks } from './live_table.js?v=1bb003a1a4fc';
+import { openLastTurn } from './last_turn.js?v=1bb003a1a4fc';
 
 const check = Lines.check || Lines.checkLine || Lines.default;
 const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -128,7 +130,7 @@ class PlayScreen {
     this.alive = true;
     this.queue = Promise.resolve();
     this.handCollapsed = false;
-    try { this.handCollapsed = localStorage.getItem('eai.games.hand_collapsed') === '1'; } catch { /* private mode */ }
+    this.handCollapsed = migrateStorageKey('local', 'eai.games.hand_collapsed', 'hxg.games.hand_collapsed') === '1';
   }
 
   sfx(name) { try { this.ctx.sfx && this.ctx.sfx.play(name); } catch { /* sound is optional */ } }
@@ -136,7 +138,7 @@ class PlayScreen {
   async start() {
     document.body.classList.add('games-play');
     this.root.classList.add('gp-root');
-    // Leaving the room (any hash outside #/games/r/<id>) tears down, even before the router swaps the view.
+    // Leaving the room (any hash outside #/room/<id>) tears down, even before the router swaps the view.
     this.hash0 = location.hash;
     this.onHash = () => { if (!this.root.isConnected || !location.hash.startsWith(this.hash0.split('/').slice(0, 4).join('/'))) this.destroy(); };
     window.addEventListener('hashchange', this.onHash);
@@ -168,7 +170,8 @@ class PlayScreen {
     if (this.unsub) this.unsub();
   }
 
-  storeKey(v) { return `eai.games.${this.ctx.roomId}:${v}`; }
+  storeKey(v) { return `hxg.games.${this.ctx.roomId}:${v}`; }
+  legacyStoreKey(v) { return `eai.games.${this.ctx.roomId}:${v}`; }
 
   save() {
     clearTimeout(this.draftTimer);
@@ -209,10 +212,10 @@ class PlayScreen {
     if (!v.draft) this.peek = false;
     if (prev && prev.v !== v.v) { try { sessionStorage.removeItem(this.storeKey(prev.v)); } catch { /* ignore */ } }
     let snap = null;
-    try { snap = JSON.parse(sessionStorage.getItem(this.storeKey(v.v)) || 'null'); } catch { /* ignore */ }
+    try { snap = JSON.parse(migrateStorageKey('session', this.legacyStoreKey(v.v), this.storeKey(v.v)) || 'null'); } catch { /* ignore */ }
     // A new version that changed nothing under your hands (someone's Market offer, a seat joining, a spectator)
     // keeps what you're arranging; anything that touched the table, your hand or your Stack drops it.
-    const carry = !snap && prev && this.st && this.st.dirty() && baseSig(prev) === baseSig(v);
+    const carry = !snap && prev && this.st && this.st.dirty() && (baseSig(prev) === baseSig(v) || drewOnly(prev, v));
     if (carry) snap = { ...this.st.snapshot(), v: v.v };
     this.view = v;
     this.st = Staging.restore(v, check, snap);
@@ -464,6 +467,19 @@ class PlayScreen {
 
   async rematch() { await this.send({ type: 'rematch' }); }
 
+  // Practice: a fresh practice game. A table: the host's rematch (the server allows it only with the host token).
+  canPlayAgain(v) {
+    if (!v.me) return false;
+    if (v.room.settings.practice) return true;
+    return !this.ctx.scoped || (savedTable(v.room.id) || {}).role === 'host';
+  }
+
+  async playAgain(v) {
+    if (!v.room.settings.practice) return this.rematch();
+    const { startPracticeRoom } = await import('./lobby.js?v=1bb003a1a4fc');
+    await startPracticeRoom(v.room.game);
+  }
+
   // ---- render -------------------------------------------------------------------------------------------------
   render() {
     if (!this.alive || this.clearing) return;   // the burst finishes first; setView() renders right after
@@ -551,7 +567,7 @@ class PlayScreen {
 
   renderStrip(v) {
     const mine = isMyTurn(v);
-    const back = this.ctx.hideBack ? null : h('a', { class: 'gp-back', href: this.ctx.backHash || '#/games', 'aria-label': t('games.play.back'), 'data-fk': 'back' }, icon('back'));
+    const back = this.ctx.hideBack ? null : h('a', { class: 'gp-back', href: this.ctx.backHash || '#/puntos', 'aria-label': t('games.play.back'), 'data-fk': 'back' }, icon('back'));
     const rules = this.ctx.openRules
       ? h('button', { class: 'gp-round-btn', type: 'button', 'aria-label': t('games.play.rules'), 'data-fk': 'rules', onclick: () => this.ctx.openRules() }, '?')
       : null;
@@ -807,7 +823,7 @@ class PlayScreen {
 
   setHandCollapsed(collapsed) {
     this.handCollapsed = collapsed;
-    try { localStorage.setItem('eai.games.hand_collapsed', collapsed ? '1' : '0'); } catch { /* private mode */ }
+    try { localStorage.setItem('hxg.games.hand_collapsed', collapsed ? '1' : '0'); } catch { /* private mode */ }
     this.render();
   }
 
@@ -892,8 +908,8 @@ class PlayScreen {
             s.stack_left ? h('small', { class: 'gp-points-left' }, s.stack_left === 1 ? t('games.play.result.left.one', { n: 1 }) : t('games.play.result.left.other', { n: s.stack_left })) : null),
           h('b', null, t('games.play.result.points', { n: r.points[s.seat] || 0 }))))),
         h('div', { class: 'gp-result-acts' },
-          v.me && !this.ctx.scoped ? h('button', { class: 'gm-btn gm-btn--go gp-btn', type: 'button', 'data-fk': 'rematch', disabled: this.busy, onclick: () => this.rematch() }, t('games.play.result.again')) : null,
-          h('a', { class: 'gm-btn gp-btn gp-btn-quiet', href: this.ctx.backHash || '#/games', 'data-fk': 'back2' }, t('games.play.back')))));
+          this.canPlayAgain(v) ? h('button', { class: 'gm-btn gm-btn--go gp-btn', type: 'button', 'data-fk': 'rematch', disabled: this.busy, onclick: () => this.playAgain(v) }, t('games.play.result.again')) : null,
+          h('a', { class: 'gm-btn gp-btn gp-result-back', href: v.room.game === 'conquian' ? '#/conquian' : '#/puntos' }, t('games.common.back')))));
   }
 }
 
@@ -902,6 +918,16 @@ function baseSig(v) {
   const me = v.me || {};
   return JSON.stringify([isMyTurn(v), (v.table || []).map((L) => [L.id, L.dots.map((d) => [d.id, d.as ? d.as.c + d.as.n : ''])]),
     (me.hand || []).map((d) => d.id), me.locked || [], me.stack_top ? me.stack_top.id : null, v.room && v.room.settings && v.room.settings.simple_table]);
+}
+
+// The turn's start only filled your hand (the first turn of a game starts on the next tick, a moment after the deal):
+// nothing you were arranging moved, so keep it.
+function drewOnly(prev, v) {
+  const before = (prev.me && prev.me.hand || []).map((d) => d.id);
+  const after = (v.me && v.me.hand || []).map((d) => d.id);
+  if (after.length <= before.length || !before.every((id) => after.includes(id))) return false;
+  const same = (x) => baseSig({ ...x, me: { ...(x.me || {}), hand: before.map((id) => ({ id })) } });
+  return same(prev) === same(v);
 }
 
 function isMyTurn(v) {
